@@ -1,0 +1,25 @@
+// load init
+loadi(65,7);
+loadi(66,8);
+//load int10
+loadi(22,35);
+loadi(23,36);
+//load exhandler
+loadi(2,15);
+loadi(3,16);
+//setup page table
+PTBR = PAGE_TABLE_BASE;
+PTLR = 3;
+//2 CODE PAGES
+[PTBR+0] = 65;
+[PTBR+1] = "0100";
+[PTBR+2] = 66;
+[PTBR+3] = "0100";
+//1 STACK PAGE
+[PTBR+4] = 76;
+[PTBR+5] = "0110";
+//Set top of stack to 0
+[76*512] = 0;
+//Set SP to start of page 3
+SP = 2*512;
+ireturn;
