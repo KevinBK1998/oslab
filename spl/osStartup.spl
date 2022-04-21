@@ -9,17 +9,17 @@ loadi(2,15);
 loadi(3,16);
 //setup page table
 PTBR = PAGE_TABLE_BASE;
-PTLR = 3;
+PTLR = 9;
 //2 CODE PAGES
-[PTBR+0] = 65;
-[PTBR+1] = "0100";
-[PTBR+2] = 66;
-[PTBR+3] = "0100";
+[PTBR+8] = 65;
+[PTBR+9] = "0100";
+[PTBR+10] = 66;
+[PTBR+11] = "0100";
 //1 STACK PAGE
-[PTBR+4] = 76;
-[PTBR+5] = "0110";
+[PTBR+16] = 76;
+[PTBR+17] = "0110";
 //Set top of stack to 0
-[76*512] = 0;
-//Set SP to start of page 3
-SP = 2*512;
+[76*512] = 2048;
+//Set SP to start of page 9
+SP = 8*512;
 ireturn;
