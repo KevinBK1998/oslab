@@ -7,6 +7,9 @@ loadi(66,8);
 //load int10
 loadi(22,35);
 loadi(23,36);
+//load timer
+loadi(4,17);
+loadi(5,18);
 //load exhandler
 loadi(2,15);
 loadi(3,16);
