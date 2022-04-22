@@ -44,4 +44,9 @@ PTLR = 10;
 [76*512] = [65*512+1];
 //Set SP to start of page 9
 SP = 8*512;
+//Set up process table for pid 0
+[PROCESS_TABLE+1]=0;
+[PROCESS_TABLE+11]=80;
+//current pid is 0
+[SYSTEM_STATUS_TABLE + 1] = 0;
 ireturn;
