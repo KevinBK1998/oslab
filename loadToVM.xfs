@@ -1,0 +1,4 @@
+load --init ../oslab/squares.xsm
+load --int=7 ../oslab/spl/INT7.xsm
+load --os ../oslab/spl/osStartup.xsm
+exit
