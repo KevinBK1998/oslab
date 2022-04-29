@@ -1,4 +1,4 @@
-load --init ../oslab/expl/oddnumbers100.xsm
+load --init ../oslab/expl/student.xsm
 load --int=7 ../oslab/spl/INT7.xsm
 load --os ../oslab/spl/osStartup.xsm
 exit
