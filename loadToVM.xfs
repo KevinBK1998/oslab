@@ -1,4 +1,5 @@
-load --init ../oslab/numbers20.xsm
+load --init ../oslab/expl/numbers50.xsm
 load --int=7 ../oslab/spl/INT7.xsm
 load --os ../oslab/spl/osStartup.xsm
+load --library ../oslab/library.lib
 exit
