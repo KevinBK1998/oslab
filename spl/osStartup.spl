@@ -13,6 +13,9 @@ loadi(5,18);
 //load exhandler
 loadi(2,15);
 loadi(3,16);
+//load int7
+loadi(16,29);
+loadi(17,30);
 //setup page table
 PTBR = PAGE_TABLE_BASE;
 PTLR = 10;
