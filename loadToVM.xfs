@@ -2,4 +2,6 @@ load --init ../oslab/expl/numbers50.xsm
 load --int=7 ../oslab/spl/INT7.xsm
 load --os ../oslab/spl/osStartup.xsm
 load --library ../oslab/library.lib
+load --idle ../oslab/expl/idle.xsm
+load --int=timer ../oslab/spl/INTtimer.xsm
 exit
