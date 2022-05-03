@@ -1,7 +1,8 @@
-load --init ../oslab/expl/numbers100.xsm
-load --int=7 ../oslab/spl/INT7.xsm
 load --os ../oslab/spl/osStartup.xsm
+load --init ../oslab/expl/numbers100.xsm
+load --idle ../oslab/expl/idle.xsm
 load --library ../oslab/library.lib
-load --idle ../oslab/expl/numbers100-200.xsm
 load --int=timer ../oslab/spl/INTtimer.xsm
+load --int=7 ../oslab/spl/INT7.xsm
+load --module 7 ../oslab/spl/boot_module.xsm
 exit
