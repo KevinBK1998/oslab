@@ -14,6 +14,9 @@ loadi(64,14);
 // Load Init code
 loadi(65,7);
 loadi(66,8);
+// Load Init2 code
+loadi(67,9);
+loadi(68,10);
 
 // Set up page table for init process
 alias initPTBR R0;
@@ -51,9 +54,49 @@ initPROCESS_TABLE=PROCESS_TABLE+16;
 [initPROCESS_TABLE+11]=80;
 [initPROCESS_TABLE+12]=0;
 [initPROCESS_TABLE+13]=8*512;
-[initPROCESS_TABLE+14]=PAGE_TABLE_BASE+20;
+[initPROCESS_TABLE+14]=initPTBR;
 [initPROCESS_TABLE+15]=10;
+
+// Set up page table for init2 process
+alias initPTBR2 R2;
+initPTBR2=PAGE_TABLE_BASE+40;
+//2 LIBRARY PAGES
+[initPTBR2+0] = 63;
+[initPTBR2+1] = "0100";
+[initPTBR2+2] = 64;
+[initPTBR2+3] = "0100";
+//2 HEAP PAGES
+[initPTBR2+4] = 83;
+[initPTBR2+5] = "0110";
+[initPTBR2+6] = 84;
+[initPTBR2+7] = "0110";
+//4 CODE PAGES
+[initPTBR2+8] = 67;
+[initPTBR2+9] = "0100";
+[initPTBR2+10] = 68;
+[initPTBR2+11] = "0100";
+[initPTBR2+12] = -1;
+[initPTBR2+13] = "0000";
+[initPTBR2+14] = -1;
+[initPTBR2+15] = "0000";
+//2 STACK PAGES
+[initPTBR2+16] = 85;
+[initPTBR2+17] = "0110";
+[initPTBR2+18] = 86;
+[initPTBR2+19] = "0110";
+
+// Set up process table for init process
+alias initPROCESS_TABLE2 R3;
+initPROCESS_TABLE2=PROCESS_TABLE+16*2;
+[initPROCESS_TABLE2+1]=2;
+[initPROCESS_TABLE2+4]=CREATED;
+[initPROCESS_TABLE2+11]=87;
+[initPROCESS_TABLE2+12]=0;
+[initPROCESS_TABLE2+13]=8*512;
+[initPROCESS_TABLE2+14]=initPTBR2;
+[initPROCESS_TABLE2+15]=10;
 
 // Set entry value from the header to top of stack
 [76*512] = [65*512+1];
+[85*512] = [67*512+1];
 return;
