@@ -21,8 +21,12 @@ process_table_entry = PROCESS_TABLE + currentPID * 16;
 alias newPID R2;
 if(currentPID == 0) then
 	newPID = 1;
-else
-	newPID = 0;
+else 
+	if(currentPID == 1) then
+		newPID = 2;
+	else
+		newPID = 0;
+	endif;
 endif;
 
 alias new_process_table R3;

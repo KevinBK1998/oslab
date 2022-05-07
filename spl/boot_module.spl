@@ -1,0 +1,102 @@
+// Load Exception Handler
+loadi(2,15);
+loadi(3,16);
+// Load Timer interrupt
+loadi(4,17);
+loadi(5,18);
+// Load interrupt 7
+loadi(16,29);
+loadi(17,30);
+
+// Load Library code
+loadi(63,13);
+loadi(64,14);
+// Load Init code
+loadi(65,7);
+loadi(66,8);
+// Load Init2 code
+loadi(67,9);
+loadi(68,10);
+
+// Set up page table for init process
+alias initPTBR R0;
+initPTBR=PAGE_TABLE_BASE+20;
+//2 LIBRARY PAGES
+[initPTBR+0] = 63;
+[initPTBR+1] = "0100";
+[initPTBR+2] = 64;
+[initPTBR+3] = "0100";
+//2 HEAP PAGES
+[initPTBR+4] = 78;
+[initPTBR+5] = "0110";
+[initPTBR+6] = 79;
+[initPTBR+7] = "0110";
+//4 CODE PAGES
+[initPTBR+8] = 65;
+[initPTBR+9] = "0100";
+[initPTBR+10] = 66;
+[initPTBR+11] = "0100";
+[initPTBR+12] = -1;
+[initPTBR+13] = "0000";
+[initPTBR+14] = -1;
+[initPTBR+15] = "0000";
+//2 STACK PAGES
+[initPTBR+16] = 76;
+[initPTBR+17] = "0110";
+[initPTBR+18] = 77;
+[initPTBR+19] = "0110";
+
+// Set up process table for init process
+alias initPROCESS_TABLE R1;
+initPROCESS_TABLE=PROCESS_TABLE+16;
+[initPROCESS_TABLE+1]=1;
+[initPROCESS_TABLE+4]=CREATED;
+[initPROCESS_TABLE+11]=80;
+[initPROCESS_TABLE+12]=0;
+[initPROCESS_TABLE+13]=8*512;
+[initPROCESS_TABLE+14]=initPTBR;
+[initPROCESS_TABLE+15]=10;
+
+// Set up page table for init2 process
+alias initPTBR2 R2;
+initPTBR2=PAGE_TABLE_BASE+40;
+//2 LIBRARY PAGES
+[initPTBR2+0] = 63;
+[initPTBR2+1] = "0100";
+[initPTBR2+2] = 64;
+[initPTBR2+3] = "0100";
+//2 HEAP PAGES
+[initPTBR2+4] = 83;
+[initPTBR2+5] = "0110";
+[initPTBR2+6] = 84;
+[initPTBR2+7] = "0110";
+//4 CODE PAGES
+[initPTBR2+8] = 67;
+[initPTBR2+9] = "0100";
+[initPTBR2+10] = 68;
+[initPTBR2+11] = "0100";
+[initPTBR2+12] = -1;
+[initPTBR2+13] = "0000";
+[initPTBR2+14] = -1;
+[initPTBR2+15] = "0000";
+//2 STACK PAGES
+[initPTBR2+16] = 85;
+[initPTBR2+17] = "0110";
+[initPTBR2+18] = 86;
+[initPTBR2+19] = "0110";
+
+// Set up process table for init process
+alias initPROCESS_TABLE2 R3;
+initPROCESS_TABLE2=PROCESS_TABLE+16*2;
+[initPROCESS_TABLE2+1]=2;
+[initPROCESS_TABLE2+4]=CREATED;
+[initPROCESS_TABLE2+11]=87;
+[initPROCESS_TABLE2+12]=0;
+[initPROCESS_TABLE2+13]=8*512;
+[initPROCESS_TABLE2+14]=initPTBR2;
+[initPROCESS_TABLE2+15]=10;
+
+// Set entry value from the header to top of stack
+[76*512] = [65*512+1];
+[85*512] = [67*512+1];
+return;
