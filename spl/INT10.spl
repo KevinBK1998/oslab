@@ -1,1 +1,26 @@
-halt;
+// Terminate the process
+alias currentPID R0;
+currentPID = [SYSTEM_STATUS_TABLE+1];
+alias process_table_entry R1;
+process_table_entry = PROCESS_TABLE + currentPID * 16;
+[process_table_entry + 4] = TERMINATED;
+
+// Check if there are other running process
+alias newPID R2;
+newPID = 1;
+while (newPID < 16) do
+	alias status R3;
+	status = [PROCESS_TABLE + 16 * newPID + 4];
+	if (status != TERMINATED) then
+        break;
+	endif;
+    newPID = newPID + 1;
+endwhile;
+
+// Halt the machine if all processes are terminated
+if(newPID == 16) then
+	halt;
+endif;
+
+// Schedule another process if there are unterminated processes
+call SCHEDULER;

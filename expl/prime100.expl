@@ -1,0 +1,23 @@
+int main()
+{
+decl
+    int temp,factor,num;
+enddecl
+begin
+    num=2;
+    while ( num <= 100 ) do
+        factor=2;
+        while ( factor <= (num / 2) ) do
+            if ( (num%factor) == 0 ) then
+                break;
+            endif;
+            factor = factor + 1;
+        endwhile;
+        if (factor > (num / 2) ) then
+            temp = exposcall ( "Write" , -2, num );
+        endif;
+        num = num + 1;
+    endwhile;
+    return 0;
+end
+}
