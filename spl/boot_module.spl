@@ -1,3 +1,5 @@
+// Operating System Modules
+
 // Load Exception Handler
 loadi(2,15);
 loadi(3,16);
@@ -7,6 +9,14 @@ loadi(5,18);
 // Load interrupt 7
 loadi(16,29);
 loadi(17,30);
+// Load interrupt 10
+loadi(22,35);
+loadi(23,36);
+// Load module 5
+loadi(50,63);
+loadi(51,64);
+
+// User Program Modules
 
 // Load Library code
 loadi(63,13);
@@ -95,6 +105,15 @@ initPROCESS_TABLE2=PROCESS_TABLE+16*2;
 [initPROCESS_TABLE2+13]=8*512;
 [initPROCESS_TABLE2+14]=initPTBR2;
 [initPROCESS_TABLE2+15]=10;
+
+
+// Set terminated for all other process
+alias pid R4;
+pid = 3;
+while(pid < 16) do
+    [PROCESS_TABLE + 16 * pid + 4] = TERMINATED;
+    pid = pid + 1;
+endwhile;
 
 // Set entry value from the header to top of stack
 [76*512] = [65*512+1];

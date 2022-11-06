@@ -5,5 +5,7 @@ load --idle ../oslab/expl/idle.xsm
 load --library ../oslab/library.lib
 load --int=timer ../oslab/spl/timer_interrupt.xsm
 load --int=7 ../oslab/spl/INT7.xsm
+load --int=10 ../oslab/spl/INT10.xsm
+load --module 5 ../oslab/spl/scheduler_module.xsm
 load --module 7 ../oslab/spl/boot_module.xsm
 exit
