@@ -27,9 +27,19 @@ loadi(66,8);
 // Load Init2 code
 loadi(67,9);
 loadi(68,10);
+// Load Init3 code
+loadi(127,69);
+
+// Set terminated for all processes
+alias pid R0;
+pid = 1;
+while(pid < 16) do
+    [PROCESS_TABLE + 16 * pid + 4] = TERMINATED;
+    pid = pid + 1;
+endwhile;
 
 // Set up page table for init process
-alias initPTBR R0;
+alias initPTBR R1;
 initPTBR=PAGE_TABLE_BASE+20;
 //2 LIBRARY PAGES
 [initPTBR+0] = 63;
@@ -57,7 +67,7 @@ initPTBR=PAGE_TABLE_BASE+20;
 [initPTBR+19] = "0110";
 
 // Set up process table for init process
-alias initPROCESS_TABLE R1;
+alias initPROCESS_TABLE R2;
 initPROCESS_TABLE=PROCESS_TABLE+16;
 [initPROCESS_TABLE+1]=1;
 [initPROCESS_TABLE+4]=CREATED;
@@ -68,8 +78,8 @@ initPROCESS_TABLE=PROCESS_TABLE+16;
 [initPROCESS_TABLE+15]=10;
 
 // Set up page table for init2 process
-alias initPTBR2 R2;
-initPTBR2=PAGE_TABLE_BASE+40;
+alias initPTBR2 R3;
+initPTBR2=PAGE_TABLE_BASE+20*2;
 //2 LIBRARY PAGES
 [initPTBR2+0] = 63;
 [initPTBR2+1] = "0100";
@@ -96,7 +106,7 @@ initPTBR2=PAGE_TABLE_BASE+40;
 [initPTBR2+19] = "0110";
 
 // Set up process table for init process
-alias initPROCESS_TABLE2 R3;
+alias initPROCESS_TABLE2 R4;
 initPROCESS_TABLE2=PROCESS_TABLE+16*2;
 [initPROCESS_TABLE2+1]=2;
 [initPROCESS_TABLE2+4]=CREATED;
@@ -106,16 +116,47 @@ initPROCESS_TABLE2=PROCESS_TABLE+16*2;
 [initPROCESS_TABLE2+14]=initPTBR2;
 [initPROCESS_TABLE2+15]=10;
 
+// Set up page table for init process
+alias initPTBR3 R5;
+initPTBR3=PAGE_TABLE_BASE+20*3;
+//2 LIBRARY PAGES
+[initPTBR3+0] = 63;
+[initPTBR3+1] = "0100";
+[initPTBR3+2] = 64;
+[initPTBR3+3] = "0100";
+//2 HEAP PAGES
+[initPTBR3+4] = 126;
+[initPTBR3+5] = "0110";
+[initPTBR3+6] = 125;
+[initPTBR3+7] = "0110";
+//4 CODE PAGES
+[initPTBR3+8] = 127;
+[initPTBR3+9] = "0100";
+[initPTBR3+10] = -1;
+[initPTBR3+11] = "0000";
+[initPTBR3+12] = -1;
+[initPTBR3+13] = "0000";
+[initPTBR3+14] = -1;
+[initPTBR3+15] = "0000";
+//2 STACK PAGES
+[initPTBR3+16] = 124;
+[initPTBR3+17] = "0110";
+[initPTBR3+18] = 123;
+[initPTBR3+19] = "0110";
 
-// Set terminated for all other process
-alias pid R4;
-pid = 3;
-while(pid < 16) do
-    [PROCESS_TABLE + 16 * pid + 4] = TERMINATED;
-    pid = pid + 1;
-endwhile;
+// Set up process table for init process
+alias initPROCESS_TABLE3 R6;
+initPROCESS_TABLE3=PROCESS_TABLE+16*3;
+[initPROCESS_TABLE3+1]=3;
+[initPROCESS_TABLE3+4]=CREATED;
+[initPROCESS_TABLE3+11]=122;
+[initPROCESS_TABLE3+12]=0;
+[initPROCESS_TABLE3+13]=8*512;
+[initPROCESS_TABLE3+14]=initPTBR3;
+[initPROCESS_TABLE3+15]=10;
 
 // Set entry value from the header to top of stack
 [76*512] = [65*512+1];
 [85*512] = [67*512+1];
+[124*512] = [127*512+1];
 return;
