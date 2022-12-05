@@ -12,6 +12,12 @@ loadi(17,30);
 // Load interrupt 10
 loadi(22,35);
 loadi(23,36);
+// Load module 0
+loadi(40,53);
+loadi(41,54);
+// Load module 4
+loadi(48,61);
+loadi(49,62);
 // Load module 5
 loadi(50,63);
 loadi(51,64);
@@ -37,6 +43,8 @@ while(pid < 16) do
     [PROCESS_TABLE + 16 * pid + 4] = TERMINATED;
     pid = pid + 1;
 endwhile;
+
+[TERMINAL_STATUS_TABLE]=0;
 
 // Set up page table for init process
 alias initPTBR R1;
