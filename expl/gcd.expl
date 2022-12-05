@@ -1,18 +1,23 @@
 int main()
 {
 decl
-    int temp,a,b,sum;
+    int temp,a,b,f,g;
 enddecl
 begin
+    g=1;
     temp = exposcall ( "Write" , -2, "A:" );
     temp = exposcall("Read", -1, a);
-    temp = exposcall ( "Write" , -2, a);
     temp = exposcall ( "Write" , -2, "B:" );
     temp = exposcall("Read", -1, b);
-    temp = exposcall ( "Write" , -2, b);
-    temp = exposcall ( "Write" , -2, "A+B:" );
-    sum=a+b;
-    temp = exposcall ( "Write" , -2, sum);
+    f = 2;
+    while ( (f <= a) AND (f <= b) ) do
+        if ( (a%f) == 0 AND (b%f) ==0) then
+            g=f;
+        endif;
+        f = f + 1;
+    endwhile;
+    temp = exposcall ( "Write" , -2, "GCD:" );
+    temp = exposcall ( "Write" , -2, g);
     return 0;
 end
 }
