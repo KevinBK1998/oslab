@@ -1,6 +1,6 @@
 EXPL_DIR = ~/KEVIN/myexpos/oslab/expl
 EXPL = cd ~/KEVIN/myexpos/expl && ./expl
-EXPL_XSM = idle.xsm oddnumbers100.xsm evennumbers100.xsm prime100.xsm
+EXPL_XSM = idle.xsm gcd.xsm
 
 compile: ${EXPL_XSM}
 .SUFFIXES: .expl .xsm
