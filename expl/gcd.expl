@@ -1,7 +1,7 @@
 int main()
 {
 decl
-    int temp,a,b;
+    int temp,a,b,sum;
 enddecl
 begin
     temp = exposcall ( "Write" , -2, "A:" );
@@ -11,7 +11,8 @@ begin
     temp = exposcall("Read", -1, b);
     temp = exposcall ( "Write" , -2, b);
     temp = exposcall ( "Write" , -2, "A+B:" );
-    temp = exposcall ( "Write" , -2, a+b);
+    sum=a+b;
+    temp = exposcall ( "Write" , -2, sum);
     return 0;
 end
 }

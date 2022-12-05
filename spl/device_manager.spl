@@ -27,7 +27,11 @@ else
         multipush(R1,R2,R3);
         call SCHEDULER;
         multipop(R1,R2,R3);
-        address = [PAGE_TABLE_BASE+20 * currentPID +2* address/512] + address % 512;
+        alias pageNum R4;
+        pageNum = address/512;
+        alias offset R5;
+        offset = address % 512;
+        address = [PAGE_TABLE_BASE+20 * currentPID +2* pageNum]*512 + offset;
         [address]=[PROCESS_TABLE+16*currentPID+8];
         return;
     else
