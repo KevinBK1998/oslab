@@ -9,6 +9,7 @@ if (functionNum == ACQUIRE_TERMINAL) then
     endwhile;
     [TERMINAL_STATUS_TABLE]=1;
     [TERMINAL_STATUS_TABLE+1]=currentPID;
+    breakpoint;
     return;
 else 
     if (functionNum == RELEASE_TERMINAL) then
@@ -29,6 +30,7 @@ else
             newPID = newPID + 1;
         endwhile;
         R0=0;
+        breakpoint;
         return;
     else
         return;
