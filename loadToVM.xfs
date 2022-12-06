@@ -1,9 +1,10 @@
 load --os ../oslab/spl/osStartup.xsm
-load --init ../oslab/expl/oddnumbers100.xsm
-load --shell ../oslab/expl/evennumbers100.xsm
+load --init ../oslab/expl/bubble_sort.xsm
 load --idle ../oslab/expl/idle.xsm
 load --library ../oslab/library.lib
 load --int=timer ../oslab/spl/timer_interrupt.xsm
+load --int=console ../oslab/spl/console_interrupt.xsm
+load --int=6 ../oslab/spl/INT6.xsm
 load --int=7 ../oslab/spl/INT7.xsm
 load --int=10 ../oslab/spl/INT10.xsm
 load --module 0 ../oslab/spl/resource_manager.xsm

@@ -6,6 +6,12 @@ loadi(3,16);
 // Load Timer interrupt
 loadi(4,17);
 loadi(5,18);
+// Load Console interrupt
+loadi(8,21);
+loadi(9,22);
+// Load interrupt 6
+loadi(14,27);
+loadi(15,28);
 // Load interrupt 7
 loadi(16,29);
 loadi(17,30);
@@ -30,11 +36,6 @@ loadi(64,14);
 // Load Init code
 loadi(65,7);
 loadi(66,8);
-// Load Init2 code
-loadi(67,9);
-loadi(68,10);
-// Load Init3 code
-loadi(127,69);
 
 // Set terminated for all processes
 alias pid R0;
@@ -85,86 +86,6 @@ initPROCESS_TABLE=PROCESS_TABLE+16;
 [initPROCESS_TABLE+14]=initPTBR;
 [initPROCESS_TABLE+15]=10;
 
-// Set up page table for init2 process
-alias initPTBR2 R3;
-initPTBR2=PAGE_TABLE_BASE+20*2;
-//2 LIBRARY PAGES
-[initPTBR2+0] = 63;
-[initPTBR2+1] = "0100";
-[initPTBR2+2] = 64;
-[initPTBR2+3] = "0100";
-//2 HEAP PAGES
-[initPTBR2+4] = 83;
-[initPTBR2+5] = "0110";
-[initPTBR2+6] = 84;
-[initPTBR2+7] = "0110";
-//4 CODE PAGES
-[initPTBR2+8] = 67;
-[initPTBR2+9] = "0100";
-[initPTBR2+10] = 68;
-[initPTBR2+11] = "0100";
-[initPTBR2+12] = -1;
-[initPTBR2+13] = "0000";
-[initPTBR2+14] = -1;
-[initPTBR2+15] = "0000";
-//2 STACK PAGES
-[initPTBR2+16] = 85;
-[initPTBR2+17] = "0110";
-[initPTBR2+18] = 86;
-[initPTBR2+19] = "0110";
-
-// Set up process table for init process
-alias initPROCESS_TABLE2 R4;
-initPROCESS_TABLE2=PROCESS_TABLE+16*2;
-[initPROCESS_TABLE2+1]=2;
-[initPROCESS_TABLE2+4]=CREATED;
-[initPROCESS_TABLE2+11]=87;
-[initPROCESS_TABLE2+12]=0;
-[initPROCESS_TABLE2+13]=8*512;
-[initPROCESS_TABLE2+14]=initPTBR2;
-[initPROCESS_TABLE2+15]=10;
-
-// Set up page table for init process
-alias initPTBR3 R5;
-initPTBR3=PAGE_TABLE_BASE+20*3;
-//2 LIBRARY PAGES
-[initPTBR3+0] = 63;
-[initPTBR3+1] = "0100";
-[initPTBR3+2] = 64;
-[initPTBR3+3] = "0100";
-//2 HEAP PAGES
-[initPTBR3+4] = 126;
-[initPTBR3+5] = "0110";
-[initPTBR3+6] = 125;
-[initPTBR3+7] = "0110";
-//4 CODE PAGES
-[initPTBR3+8] = 127;
-[initPTBR3+9] = "0100";
-[initPTBR3+10] = -1;
-[initPTBR3+11] = "0000";
-[initPTBR3+12] = -1;
-[initPTBR3+13] = "0000";
-[initPTBR3+14] = -1;
-[initPTBR3+15] = "0000";
-//2 STACK PAGES
-[initPTBR3+16] = 124;
-[initPTBR3+17] = "0110";
-[initPTBR3+18] = 123;
-[initPTBR3+19] = "0110";
-
-// Set up process table for init process
-alias initPROCESS_TABLE3 R6;
-initPROCESS_TABLE3=PROCESS_TABLE+16*3;
-[initPROCESS_TABLE3+1]=3;
-[initPROCESS_TABLE3+4]=CREATED;
-[initPROCESS_TABLE3+11]=122;
-[initPROCESS_TABLE3+12]=0;
-[initPROCESS_TABLE3+13]=8*512;
-[initPROCESS_TABLE3+14]=initPTBR3;
-[initPROCESS_TABLE3+15]=10;
-
 // Set entry value from the header to top of stack
 [76*512] = [65*512+1];
-[85*512] = [67*512+1];
-[124*512] = [127*512+1];
 return;
