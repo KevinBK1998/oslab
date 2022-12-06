@@ -1,5 +1,5 @@
 load --os ../oslab/spl/osStartup.xsm
-load --init ../oslab/expl/gcd.xsm
+load --init ../oslab/expl/bubble_sort.xsm
 load --idle ../oslab/expl/idle.xsm
 load --library ../oslab/library.lib
 load --int=timer ../oslab/spl/timer_interrupt.xsm
