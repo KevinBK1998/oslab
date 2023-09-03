@@ -1,0 +1,10 @@
+alias functionNum R1;
+breakpoint;
+if (functionNum == EXIT_PROCESS) then
+    alias currentPID R2;
+    // call FREE_PAGE_TABLE
+    // call FREE_USER_AREA_PAGE
+    alias process_table R3;
+    process_table = PROCESS_TABLE + currentPID * 16;
+    [process_table + 4] = TERMINATED;
+endif;

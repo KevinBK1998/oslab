@@ -15,6 +15,9 @@ loadi(15,28);
 // Load interrupt 7
 loadi(16,29);
 loadi(17,30);
+// Load interrupt 9
+loadi(20,33);
+loadi(21,34);
 // Load interrupt 10
 loadi(22,35);
 loadi(23,36);
