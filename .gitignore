@@ -1,3 +1,4 @@
 spl/*.xsm
 expl/*.xsm
+disk.xfs
 mem
