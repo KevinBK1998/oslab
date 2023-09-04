@@ -15,28 +15,92 @@ alias firstArgument R4;
 firstArgument=[firstArgPhysicalAddr];
 
 alias inode_index R5;
-inode_index=INODE_TABLE;
-while(inode_index < INODE_TABLE + 16*MAX_FILE_NUM) do
+inode_index=0;
+while(inode_index < MAX_FILE_NUM) do
     alias filename R6;
-	filename = [inode_index + 1];
+	filename = [INODE_TABLE + inode_index*16 + 1];
 	alias filetype R7;
-	filetype = [inode_index];
+	filetype = [INODE_TABLE + inode_index*16];
 	if(filename == firstArgument && filetype == EXEC) then
         break;
 	endif;
-    inode_index = inode_index + 16;
+    inode_index = inode_index + 1;
 endwhile;
 
-if (inode_index < INODE_TABLE + 16*MAX_FILE_NUM)
+if (inode_index < MAX_FILE_NUM)
 then
-    multipush(R0,R1,R2,R3,R4,R5,R6);
+    multipush(R0,R1,R2,R3,R4,R5);
     R1=EXIT_PROCESS;
     R2=[SYSTEM_STATUS_TABLE+1];
     call PROCESS_MANAGER;
-    multipop(R0,R1,R2,R3,R4,R5,R6);
-    alias physicalAddrRetVal R7;
-    physicalAddrRetVal = ([PTBR + 2 * (userSP - 1)/ 512] * 512) + ((userSP - 1) % 512);
-    [physicalAddrRetVal] = 0;
+    multipop(R0,R1,R2,R3,R4,R5);
+    alias currentPID R6;
+    alias userAreaPageNumber R7;
+    currentPID = [SYSTEM_STATUS_TABLE+1];
+    userAreaPageNumber = [PROCESS_TABLE + currentPID*16 + 11];
+    [MEMORY_FREE_LIST+userAreaPageNumber]=[MEMORY_FREE_LIST+userAreaPageNumber]+1;
+    [SYSTEM_STATUS_TABLE+2]=[SYSTEM_STATUS_TABLE+2]-1;
+    SP=userAreaPageNumber*512-1;
+    [PROCESS_TABLE + currentPID*16 + 4]=RUNNING;
+    [PROCESS_TABLE + currentPID*16 + 7]=inode_index;
+    alias pageTableBase R8;
+    pageTableBase = PAGE_TABLE_BASE + currentPID * 20;
+    // Library Pages
+    [pageTableBase+0]=63;
+    [pageTableBase+1]="0100";
+    [pageTableBase+2]=64;
+    [pageTableBase+3]="0100";
+
+    // Heap Pages
+    multipush(R1,R2,R3,R4,R5,R6,R7,R8);
+    R1=GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4,R5,R6,R7,R8);
+    [pageTableBase+4]=R0;
+    [pageTableBase+5]="0110";
+
+    multipush(R1,R2,R3,R4,R5,R6,R7,R8);
+    R1=GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4,R5,R6,R7,R8);
+    [pageTableBase+6]=R0;
+    [pageTableBase+7]="0110";
+
+    alias pageIndex R9;
+    pageIndex = 4;
+    while (pageIndex<8) do
+        multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+        R1=GET_FREE_PAGE;
+        call MEMORY_MANAGER;
+        multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+        [pageTableBase + pageIndex*2]=R0;
+        [pageTableBase + pageIndex*2+1]="0100";
+        loadi(R0,[INODE_TABLE +inode_index*16 + 4 + pageIndex]);
+        pageIndex=pageIndex+1;
+        if ([INODE_TABLE +inode_index*16 + 4 + pageIndex]==-1) then
+            break;
+        endif;
+    endwhile;
+
+    // Stack Pages
+    multipush(R1,R2,R3,R4,R5,R6,R7,R8);
+    R1=GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4,R5,R6,R7,R8);
+    [pageTableBase+16]=R0;
+    [pageTableBase+17]="0110";
+
+    multipush(R1,R2,R3,R4,R5,R6,R7,R8);
+    R1=GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4,R5,R6,R7,R8);
+    [pageTableBase+18]=R0;
+    [pageTableBase+19]="0110";
+
+    // Store entry point IP on top of user stack
+    [[pageTableBase+16]*512] = [[pageTableBase+8]*512+1];
+    userSP=8*512;
+    breakpoint;
 else
     alias physicalAddrRetVal R7;
 	physicalAddrRetVal = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);

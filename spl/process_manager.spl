@@ -22,7 +22,6 @@ else
         //R2=currentPID;
         call PROCESS_MANAGER;
         multipop(R0,R1,R2);
-        breakpoint;
         alias process_table R3;
         process_table = PROCESS_TABLE + currentPID * 16;
         [process_table + 4] = TERMINATED;
@@ -33,8 +32,13 @@ else
             alias pageTableBase R3;
             pageTableBase = PAGE_TABLE_BASE + currentPID * 20;
             alias pageIndex R4;
-            pageIndex = 0;
-            while (pageIndex<20) do
+            // only invalidate library pages, dont deallocate
+            [pageTableBase+0]=-1;
+            [pageTableBase+1]="0000";
+            [pageTableBase+2]=-1;
+            [pageTableBase+3]="0000";
+            pageIndex = 2;
+            while (pageIndex<10) do
                 if([pageTableBase + pageIndex*2]>0) then
                     alias pageNum R5;
                     pageNum=[pageTableBase + pageIndex*2];
