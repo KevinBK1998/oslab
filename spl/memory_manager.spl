@@ -1,0 +1,43 @@
+alias functionNum R1;
+//breakpoint;
+if (functionNum == GET_FREE_PAGE) then
+    breakpoint;
+    alias currentPID R2;
+    multipush(R0,R1,R2);
+    R1=FREE_PAGE_TABLE;
+    //R2=currentPID;
+    call PROCESS_MANAGER;
+    multipop(R0,R1,R2);
+    multipush(R0,R1,R2);
+    R1=FREE_USER_AREA_PAGE;
+    //R2=currentPID;
+    call PROCESS_MANAGER;
+    multipop(R0,R1,R2);
+    alias process_table R3;
+    process_table = PROCESS_TABLE + currentPID * 16;
+    [process_table + 4] = TERMINATED;
+    return;
+else
+    if (functionNum == RELEASE_PAGE) then
+        alias physicalPageNum R2;
+        alias numProcess R3;
+        numProcess = [MEMORY_FREE_LIST+physicalPageNum] - 1;
+        [MEMORY_FREE_LIST+physicalPageNum] = numProcess;
+        if (numProcess==0) then
+            [SYSTEM_STATUS_TABLE+2]=[SYSTEM_STATUS_TABLE+2]+1;
+        endif;
+        alias newPID R4;
+        while(newPID < 16) do
+	        alias status R5;
+	        status = [PROCESS_TABLE + 16 * newPID + 4];
+	        alias pid R6;
+	        pid = [PROCESS_TABLE + 16 * newPID + 1];
+	        if(status == WAIT_MEM && pid != -1) then
+                breakpoint;
+                [PROCESS_TABLE + 16 * newPID + 4] = READY;
+	        endif;
+            newPID = newPID + 1;
+        endwhile;
+        return;
+    endif;
+endif;

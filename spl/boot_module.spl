@@ -31,6 +31,9 @@ loadi(41,54);
 // Load module 1
 loadi(42,55);
 loadi(43,56);
+// Load module 2
+loadi(44,57);
+loadi(45,58);
 // Load module 4
 loadi(48,61);
 loadi(49,62);
@@ -53,6 +56,17 @@ pid = 1;
 while(pid < 16) do
     [PROCESS_TABLE + 16 * pid + 4] = TERMINATED;
     pid = pid + 1;
+endwhile;
+
+alias pageNum R0;
+pageNum = 0;
+while(pageNum < 76) do
+    [MEMORY_FREE_LIST + pageNum] = 1;
+    pageNum = pageNum + 1;
+endwhile;
+while(pageNum < MAX_MEM_PAGE) do
+    [MEMORY_FREE_LIST + pageNum] = 0;
+    pageNum = pageNum + 1;
 endwhile;
 
 [TERMINAL_STATUS_TABLE]=0;
@@ -96,6 +110,17 @@ initPROCESS_TABLE=PROCESS_TABLE+16;
 [initPROCESS_TABLE+14]=initPTBR;
 [initPROCESS_TABLE+15]=10;
 
+// Set Initial Values
+
+[MEMORY_FREE_LIST+76]=1;
+[MEMORY_FREE_LIST+77]=1;
+[MEMORY_FREE_LIST+78]=1;
+[MEMORY_FREE_LIST+79]=1;
+[MEMORY_FREE_LIST+80]=1;
+// Set MEM_FREE_COUNT needs to be calculated
+[SYSTEM_STATUS_TABLE+2]=128-7;
+[SYSTEM_STATUS_TABLE+3]=0;
 // Set entry value from the header to top of stack
 [76*512] = [65*512+1];
+
 return;
