@@ -1,5 +1,9 @@
 // Operating System Modules
 
+// Load InodeUser table
+loadi(59,3);
+loadi(60,4);
+
 // Load Exception Handler
 loadi(2,15);
 loadi(3,16);
@@ -24,6 +28,9 @@ loadi(23,36);
 // Load module 0
 loadi(40,53);
 loadi(41,54);
+// Load module 1
+loadi(42,55);
+loadi(43,56);
 // Load module 4
 loadi(48,61);
 loadi(49,62);

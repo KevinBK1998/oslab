@@ -1,4 +1,4 @@
-spl/*.xsm
-expl/*.xsm
+*.xsm
 disk.xfs
 mem
+*.txt
