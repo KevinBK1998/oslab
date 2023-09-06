@@ -37,6 +37,9 @@ PTLR = 10;
 [PTBR+18] = -1;
 [PTBR+19] = "0000";
 
+[MEMORY_FREE_LIST+81]=1;
+[MEMORY_FREE_LIST+82]=1;
+
 // Set up process table for pid 0
 [PROCESS_TABLE+1]=0;
 [PROCESS_TABLE+4]=RUNNING;

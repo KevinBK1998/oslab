@@ -1,14 +1,17 @@
-load --os ../oslab/spl/osStartup.xsm
-load --init ../oslab/expl/bubble_sort.xsm
-load --idle ../oslab/expl/idle.xsm
-load --library ../oslab/library.lib
-load --int=timer ../oslab/spl/timer_interrupt.xsm
-load --int=console ../oslab/spl/console_interrupt.xsm
-load --int=6 ../oslab/spl/INT6.xsm
-load --int=7 ../oslab/spl/INT7.xsm
-load --int=10 ../oslab/spl/INT10.xsm
-load --module 0 ../oslab/spl/resource_manager.xsm
-load --module 4 ../oslab/spl/device_manager.xsm
-load --module 5 ../oslab/spl/scheduler_module.xsm
-load --module 7 ../oslab/spl/boot_module.xsm
+load --os spl/osStartup.xsm
+load --init expl/shell.xsm
+load --idle expl/idle.xsm
+load --library library.lib
+load --int=timer spl/timer_interrupt.xsm
+load --int=console spl/console_interrupt.xsm
+load --int=6 spl/INT6.xsm
+load --int=7 spl/INT7.xsm
+load --int=9 spl/INT9.xsm
+load --int=10 spl/INT10.xsm
+load --module 0 spl/resource_manager.xsm
+load --module 1 spl/process_manager.xsm
+load --module 2 spl/memory_manager.xsm
+load --module 4 spl/device_manager.xsm
+load --module 5 spl/scheduler_module.xsm
+load --module 7 spl/boot_module.xsm
 exit

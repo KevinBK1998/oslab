@@ -1,0 +1,58 @@
+alias functionNum R1;
+if (functionNum == FREE_USER_AREA_PAGE) then
+    alias currentPID R2;
+    alias pageNum R3;
+    pageNum = [PROCESS_TABLE + currentPID * 16 + 11];
+    multipush(R1,R2,R3);
+    R1=RELEASE_PAGE;
+    R2=pageNum;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3);
+    return;
+else
+    if (functionNum == EXIT_PROCESS) then
+        alias currentPID R2;
+        multipush(R0,R1,R2);
+        R1=FREE_PAGE_TABLE;
+        //R2=currentPID;
+        call PROCESS_MANAGER;
+        multipop(R0,R1,R2);
+        multipush(R0,R1,R2);
+        R1=FREE_USER_AREA_PAGE;
+        //R2=currentPID;
+        call PROCESS_MANAGER;
+        multipop(R0,R1,R2);
+        alias process_table R3;
+        process_table = PROCESS_TABLE + currentPID * 16;
+        [process_table + 4] = TERMINATED;
+        return;
+    else
+        if (functionNum == FREE_PAGE_TABLE) then
+            alias currentPID R2;
+            alias pageTableBase R3;
+            pageTableBase = PAGE_TABLE_BASE + currentPID * 20;
+            alias pageIndex R4;
+            // only invalidate library pages, dont deallocate
+            [pageTableBase+0]=-1;
+            [pageTableBase+1]="0000";
+            [pageTableBase+2]=-1;
+            [pageTableBase+3]="0000";
+            pageIndex = 2;
+            while (pageIndex<10) do
+                if([pageTableBase + pageIndex*2]>0) then
+                    alias pageNum R5;
+                    pageNum=[pageTableBase + pageIndex*2];
+                    multipush(R1,R2,R3,R4,R5);
+                    R1=RELEASE_PAGE;
+                    R2=pageNum;
+                    call MEMORY_MANAGER;
+                    multipop(R1,R2,R3,R4,R5);
+                endif;
+                [pageTableBase + pageIndex*2]=-1;
+                [pageTableBase + pageIndex*2+1]="0000";
+                pageIndex=pageIndex+1;
+            endwhile;
+            return;
+        endif;
+    endif;
+endif;

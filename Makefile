@@ -1,7 +1,8 @@
-CWD = cd ~/KEVIN/myexpos/oslab
-XFS = cd ~/KEVIN/myexpos/xfs-interface && ./xfs-interface
-XFS_ARGS = run ~/KEVIN/myexpos/oslab/loadToVM.xfs
-XSM = ~/KEVIN/myexpos/xsm/xsm
+CWD = ~/oslab
+DISK_DIR= ~/myexpos/xfs-interface
+XFS = ${DISK_DIR}/xfs-interface
+XFS_ARGS = run ~/oslab/loadToVM.xfs
+XSM = cd ~/myexpos/xsm && ./xsm
 
 clean:
 	-rm -f mem spl/*.xsm expl/*.xsm
@@ -10,11 +11,22 @@ build:
 	${MAKE} -C spl
 	@echo compile expl files
 	${MAKE} -C expl
+	@echo copy to temp
+	${XFS} ${XFS_ARGS}
 	@echo copy to disk
-	${XFS} ${XFS_ARGS} && ${CWD}
+	cp ${CWD}/disk.xfs ${DISK_DIR}
 run: build
-	${XSM}
+	@echo
+	@echo Powering Up
+	@echo
+	${XSM} && cd ${CWD}
 run-sans-timer: build
-	${XSM} --timer 0
+	@echo
+	@echo Powering Up without Timer Interrupt
+	@echo
+	${XSM} --timer 0 && cd ${CWD}
 debug: build
-	${XSM} --debug
+	@echo
+	@echo Powering Up in Debug Mode
+	@echo
+	${XSM} --debug && cd ${CWD}
