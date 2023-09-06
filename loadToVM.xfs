@@ -1,5 +1,5 @@
 load --os spl/osStartup.xsm
-load --init expl/bubble_sort.xsm
+load --init expl/shell.xsm
 load --idle expl/idle.xsm
 load --library library.lib
 load --int=timer spl/timer_interrupt.xsm
