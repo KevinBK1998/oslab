@@ -1,38 +1,47 @@
 alias functionNum R1;
-if (functionNum == ACQUIRE_TERMINAL) then
-    alias currentPID R2;
-    while ([TERMINAL_STATUS_TABLE]==1) do
-        [PROCESS_TABLE+16*currentPID+4]=WAIT_TERMINAL;
+if (functionNum == ACQUIRE_DISK) then
+    alias givenPID R2;
+    while ([DISK_STATUS_TABLE]==1) do
+        [PROCESS_TABLE+16*givenPID+4]=WAIT_DISK;
         multipush(R1,R2);
         call SCHEDULER;
         multipop(R1,R2);
     endwhile;
-    [TERMINAL_STATUS_TABLE]=1;
-    [TERMINAL_STATUS_TABLE+1]=currentPID;
-    //breakpoint;
+    [DISK_STATUS_TABLE]=1;
+    [DISK_STATUS_TABLE+4]=givenPID;
     return;
-else 
-    if (functionNum == RELEASE_TERMINAL) then
-        alias currentPID R2;
-        if ([TERMINAL_STATUS_TABLE+1]!=currentPID)then
-            R0=-1;
-            return;
-        endif;
-        [TERMINAL_STATUS_TABLE]=0;
-        alias newPID R3;
-        newPID=0;
-        while(newPID < 16) do
-            alias process_table_entry R4;
-            process_table_entry=PROCESS_TABLE + 16 * newPID;
-            if ([process_table_entry + 4] == WAIT_TERMINAL && [process_table_entry + 1]!=-1) then
-                [process_table_entry + 4] = READY;
-            endif;
-            newPID = newPID + 1;
+else
+    if (functionNum == ACQUIRE_TERMINAL) then
+        alias givenPID R2;
+        while ([TERMINAL_STATUS_TABLE]==1) do
+            [PROCESS_TABLE+16*givenPID+4]=WAIT_TERMINAL;
+            multipush(R1,R2);
+            call SCHEDULER;
+            multipop(R1,R2);
         endwhile;
-        R0=0;
-        //breakpoint;
+        [TERMINAL_STATUS_TABLE]=1;
+        [TERMINAL_STATUS_TABLE+1]=givenPID;
         return;
     else
-        return;
+        if (functionNum == RELEASE_TERMINAL) then
+            alias givenPID R2;
+            if ([TERMINAL_STATUS_TABLE+1]!=givenPID)then
+                R0=-1;
+                return;
+            endif;
+            [TERMINAL_STATUS_TABLE]=0;
+            alias newPID R3;
+            newPID=0;
+            while(newPID < 16) do
+                alias process_table_entry R4;
+                process_table_entry=PROCESS_TABLE + 16 * newPID;
+                if ([process_table_entry + 4] == WAIT_TERMINAL && [process_table_entry + 1]!=-1) then
+                    [process_table_entry + 4] = READY;
+                endif;
+                newPID = newPID + 1;
+            endwhile;
+            R0=0;
+            return;
+        endif;
     endif;
 endif;

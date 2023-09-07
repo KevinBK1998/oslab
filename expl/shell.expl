@@ -1,15 +1,19 @@
 int main()
 {
 decl
-    int temp, code;
-    str filename;
+    int code;
+    str filename,default;
 enddecl
 begin
-    temp = exposcall ( "Write" , -2, "FileName:" );
-    temp = exposcall("Read", -1, filename);
+    default = "odd.xsm";
+    write("FileName:");
+    read(filename);
+    if (filename=="") then
+        filename=default;
+    endif;
     code = exposcall ( "Exec" , filename);
-    temp = exposcall ( "Write" , -2, "Failed to execute" );
-    temp = exposcall ( "Write" , -2, code );
+    write("exec failed");
+    write(code);
     return 0;
 end
 }

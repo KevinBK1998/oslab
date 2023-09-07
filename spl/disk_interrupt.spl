@@ -1,0 +1,23 @@
+// save user context
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 -1;
+backup;
+
+[DISK_STATUS_TABLE]=0;
+
+breakpoint;
+
+alias pid R0;
+while (pid<16) do
+    alias process_table_entry R1;
+    process_table_entry = PROCESS_TABLE + pid * 16;
+    if ([process_table_entry + 4] ==WAIT_DISK) then
+        [process_table_entry + 4] = READY;
+    endif;
+    pid=pid+1;
+endwhile;
+
+// restore user context
+restore;
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+ireturn;
