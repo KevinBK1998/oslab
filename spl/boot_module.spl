@@ -115,6 +115,14 @@ initPROCESS_TABLE=PROCESS_TABLE+16;
 
 // Set Initial Values
 
+// init per process table
+alias resourceIndex R3;
+resourceIndex=0;
+while (resourceIndex < 8) do
+    [80*512+RESOURCE_TABLE_OFFSET+resourceIndex*2]=-1;
+    resourceIndex=resourceIndex+1;
+endwhile;
+
 [MEMORY_FREE_LIST+76]=1;
 [MEMORY_FREE_LIST+77]=1;
 [MEMORY_FREE_LIST+78]=1;

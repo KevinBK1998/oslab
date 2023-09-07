@@ -46,6 +46,14 @@ then
     [PROCESS_TABLE + currentPID*16 + 4]=RUNNING;
     [PROCESS_TABLE + currentPID*16 + 7]=inode_index;
 
+    // init per process table
+    alias resourceIndex R8;
+    resourceIndex=0;
+    while (resourceIndex < 8) do
+        [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+resourceIndex*2]=-1;
+        resourceIndex=resourceIndex+1;
+    endwhile;
+
     alias pageTableBase R8;
     pageTableBase = PAGE_TABLE_BASE + currentPID * 20;
     // Library Pages
@@ -90,7 +98,6 @@ then
         R4=disk_block;
         call DEVICE_MANAGER;
         multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
-        breakpoint;
 
         pageIndex=pageIndex+1;
         if ([INODE_TABLE +inode_index*16 + 8 + pageIndex]==-1) then

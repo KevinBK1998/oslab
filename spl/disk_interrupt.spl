@@ -5,8 +5,6 @@ backup;
 
 [DISK_STATUS_TABLE]=0;
 
-breakpoint;
-
 alias pid R0;
 while (pid<16) do
     alias process_table_entry R1;
