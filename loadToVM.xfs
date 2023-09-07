@@ -4,6 +4,7 @@ load --idle expl/idle.xsm
 load --library library.lib
 load --int=timer spl/timer_interrupt.xsm
 load --int=console spl/console_interrupt.xsm
+load --int=disk spl/disk_interrupt.xsm
 load --int=6 spl/INT6.xsm
 load --int=7 spl/INT7.xsm
 load --int=9 spl/INT9.xsm

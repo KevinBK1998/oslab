@@ -10,6 +10,9 @@ loadi(3,16);
 // Load Timer interrupt
 loadi(4,17);
 loadi(5,18);
+// Load Disk interrupt
+loadi(6,19);
+loadi(7,20);
 // Load Console interrupt
 loadi(8,21);
 loadi(9,22);
@@ -111,6 +114,14 @@ initPROCESS_TABLE=PROCESS_TABLE+16;
 [initPROCESS_TABLE+15]=10;
 
 // Set Initial Values
+
+// init per process table
+alias resourceIndex R3;
+resourceIndex=0;
+while (resourceIndex < 8) do
+    [80*512+RESOURCE_TABLE_OFFSET+resourceIndex*2]=-1;
+    resourceIndex=resourceIndex+1;
+endwhile;
 
 [MEMORY_FREE_LIST+76]=1;
 [MEMORY_FREE_LIST+77]=1;

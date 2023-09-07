@@ -3,14 +3,17 @@
 SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 -1;
 backup;
 
-alias currentPID R0;
-currentPID = [SYSTEM_STATUS_TABLE+1];
+[DISK_STATUS_TABLE]=0;
 
-alias process_table_entry R1;
-process_table_entry = PROCESS_TABLE + currentPID * 16;
-[process_table_entry + 4] = READY;
-
-call SCHEDULER;
+alias pid R0;
+while (pid<16) do
+    alias process_table_entry R1;
+    process_table_entry = PROCESS_TABLE + pid * 16;
+    if ([process_table_entry + 4] ==WAIT_DISK) then
+        [process_table_entry + 4] = READY;
+    endif;
+    pid=pid+1;
+endwhile;
 
 // restore user context
 restore;
