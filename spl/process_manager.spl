@@ -31,25 +31,41 @@ else
             alias currentPID R2;
             alias pageTableBase R3;
             pageTableBase = PAGE_TABLE_BASE + currentPID * 20;
-            alias pageIndex R4;
+            alias diskTableBase R4;
+            diskTableBase = DISK_MAP_TABLE + currentPID * 10;
+
             // only invalidate library pages, dont deallocate
             [pageTableBase+0]=-1;
             [pageTableBase+1]="0000";
             [pageTableBase+2]=-1;
             [pageTableBase+3]="0000";
+
+            alias pageIndex R5;
             pageIndex = 2;
             while (pageIndex<10) do
                 if([pageTableBase + pageIndex*2]>0) then
-                    alias pageNum R5;
+                    alias pageNum R6;
                     pageNum=[pageTableBase + pageIndex*2];
-                    multipush(R1,R2,R3,R4,R5);
+                    multipush(R1,R2,R3,R4,R5,R6);
                     R1=RELEASE_PAGE;
                     R2=pageNum;
                     call MEMORY_MANAGER;
-                    multipop(R1,R2,R3,R4,R5);
+                    multipop(R1,R2,R3,R4,R5,R6);
                 endif;
                 [pageTableBase + pageIndex*2]=-1;
                 [pageTableBase + pageIndex*2+1]="0000";
+                if([diskTableBase + pageIndex]>0) then
+                    breakpoint;
+                    alias blockNum R6;
+                    blockNum=[diskTableBase + pageIndex];
+                    multipush(R1,R2,R3,R4,R5,R6);
+                    R1=RELEASE_BLOCK;
+                    R3=currentPID;
+                    R2=blockNum;
+                    call MEMORY_MANAGER;
+                    multipop(R1,R2,R3,R4,R5,R6);
+                endif;
+                [diskTableBase + pageIndex]=-1;
                 pageIndex=pageIndex+1;
             endwhile;
             return;
