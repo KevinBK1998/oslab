@@ -19,7 +19,6 @@ if (functionNum == GET_FREE_PAGE) then
     endwhile;
     [MEMORY_FREE_LIST + pageNum]=1;
     R0=pageNum;
-    return;
 else
     if (functionNum == RELEASE_PAGE) then
         alias physicalPageNum R2;
@@ -40,12 +39,11 @@ else
 	        endif;
             newPID = newPID + 1;
         endwhile;
-        return;
     else
         if (functionNum == RELEASE_BLOCK) then
-            breakpoint;
             alias blockNum R2;
-            alias givenPID R3;
+            // alias givenPID R3;
+            [DISK_FREE_LIST+blockNum]=[DISK_FREE_LIST+blockNum]-1;
         else
             if (functionNum == GET_CODE_PAGE) then
                 alias blockNum R2;
@@ -62,8 +60,8 @@ else
                 R3=free_page;
                 call DEVICE_MANAGER;
                 multipop(R0,R1,R2);
-                return;
             endif;
         endif;
     endif;
 endif;
+return;

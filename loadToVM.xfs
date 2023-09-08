@@ -2,6 +2,7 @@ load --os spl/osStartup.xsm
 load --init expl/shell.xsm
 load --idle expl/idle.xsm
 load --library library.lib
+load --exhandler spl/exception_handler.xsm
 load --int=timer spl/timer_interrupt.xsm
 load --int=console spl/console_interrupt.xsm
 load --int=disk spl/disk_interrupt.xsm

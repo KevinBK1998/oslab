@@ -1,0 +1,87 @@
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = -1;
+// save user context
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 -1;
+backup;
+multipush(EIP);
+alias userSP R1;
+userSP=[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+alias currentPID R2;
+currentPID = [SYSTEM_STATUS_TABLE+1];
+if (EC!=0 || userSP == 5119) then
+    print " ";
+    print "ERROR IN APP";
+    print "ADDRESS:";
+    print EIP;
+    if (EC==1) then
+        print "CAUSE:Illegal";
+        print "Instruction";
+    else
+        if (EC==2) then
+            print "CAUSE:Illegal";
+            print "Memory Access";
+            print "EMA:";
+            print EMA;
+        else
+            if (EC==3) then
+                print "CAUSE:Arithme";
+                print "tic Exception";
+            else
+                print "CAUSE:Stack";
+                print "Overflow";
+                print userSP;
+            endif;
+        endif;
+    endif;
+
+    print "EXIT PROCESS:";
+    print currentPID;
+    
+    multipush(R1,R2);
+    R2=currentPID;
+    R1=EXIT_PROCESS;
+    call PROCESS_MANAGER;
+    multipop(R1,R2);
+
+    call SCHEDULER;
+else
+    // print " ";
+    // print "Page Fault:";
+    // print EPN;
+    // print " ";
+    alias free_page R0;
+    alias pageTableBase R3;
+    pageTableBase = PAGE_TABLE_BASE + currentPID * 20;
+    if(EPN<4) then
+        // Heap Page
+        multipush(R1,R2,R3);
+        R1=GET_FREE_PAGE;
+        call MEMORY_MANAGER;
+        multipop(R1,R2,R3);
+        [pageTableBase+EPN*2]=free_page;
+        [pageTableBase+EPN*2+1]="1110";
+    else
+        // Code Page
+        multipush(R1,R2,R3);
+        R1=GET_CODE_PAGE;
+        R2=[DISK_MAP_TABLE + currentPID*10 + EPN];
+        call MEMORY_MANAGER;
+        multipop(R1,R2,R3);
+        [pageTableBase+EPN*2]=free_page;
+        [pageTableBase+EPN*2+1]="1100";
+    endif;
+endif;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+alias pageNum R4;
+alias offset R5;
+userSP=userSP+1;
+pageNum = userSP / 512;
+offset = userSP % 512;
+pageNum=[PAGE_TABLE_BASE + currentPID*20 + pageNum*2];
+multipop(EIP);
+[pageNum*512 + offset]=EIP;
+restore;
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1] * 16 + 13] + 1;
+ireturn;

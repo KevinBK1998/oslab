@@ -5,7 +5,7 @@ decl
     str filename,default;
 enddecl
 begin
-    default = "odd.xsm";
+    default = "bubsort.xsm";
     write("FileName:");
     read(filename);
     if (filename=="") then
