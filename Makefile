@@ -5,7 +5,7 @@ XFS_ARGS = run ~/oslab/loadToVM.xfs
 XSM = cd ~/myexpos/xsm && ./xsm
 
 clean:
-	-rm -f mem spl/*.xsm expl/*.xsm
+	rm -f mem spl/*.xsm expl/*.xsm
 build:
 	@echo compile spl files
 	${MAKE} -C spl

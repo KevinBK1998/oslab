@@ -5,7 +5,7 @@ decl
     str filename,default;
 enddecl
 begin
-    default = "bubsort.xsm";
+    default = "link.xsm";
     write("FileName:");
     read(filename);
     if (filename=="") then
