@@ -46,7 +46,7 @@ then
     [PROCESS_TABLE + currentPID*16 + 4]=RUNNING;
     [PROCESS_TABLE + currentPID*16 + 7]=inode_index;
 
-    // init per process table
+    // init per process resource table
     alias resourceIndex R8;
     resourceIndex=0;
     while (resourceIndex < 8) do
@@ -62,48 +62,35 @@ then
     [pageTableBase+2]=64;
     [pageTableBase+3]="0100";
 
-    alias free_page R0;
     // Heap Pages
-    multipush(R1,R2,R3,R4,R5,R6,R7,R8);
-    R1=GET_FREE_PAGE;
-    call MEMORY_MANAGER;
-    multipop(R1,R2,R3,R4,R5,R6,R7,R8);
-    [pageTableBase+4]=free_page;
-    [pageTableBase+5]="0110";
+    [pageTableBase+4]=-1;
+    [pageTableBase+5]="0000";
+    [pageTableBase+6]=-1;
+    [pageTableBase+7]="0000";
 
-    multipush(R1,R2,R3,R4,R5,R6,R7,R8);
-    R1=GET_FREE_PAGE;
-    call MEMORY_MANAGER;
-    multipop(R1,R2,R3,R4,R5,R6,R7,R8);
-    [pageTableBase+6]=free_page;
-    [pageTableBase+7]="0110";
-
-    alias pageIndex R9;
-    pageIndex = 0;
-    while (pageIndex<4) do
-        multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
-        R1=GET_FREE_PAGE;
-        call MEMORY_MANAGER;
-        multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
-
-        [pageTableBase + 8 + pageIndex*2]=free_page;
-        [pageTableBase + 9 + pageIndex*2]="0100";
-
-        alias disk_block R10;
-        disk_block=[INODE_TABLE + inode_index*16 + 8 + pageIndex];
-        multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
-        R1=DISK_LOAD;
-        R2=currentPID;
-        R3=free_page;
-        R4=disk_block;
-        call DEVICE_MANAGER;
-        multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
-
-        pageIndex=pageIndex+1;
-        if ([INODE_TABLE +inode_index*16 + 8 + pageIndex]==-1) then
-            break;
+    // init all Disk Map Table entries
+    alias index R9;
+    index = 0;
+    while (index<10) do
+        alias blockNum R10;
+        blockNum=-1;
+        if (index >=4 && index <8) then
+            blockNum=[INODE_TABLE + inode_index*16 + 4 + index];
         endif;
+        [DISK_MAP_TABLE + currentPID*10 + index]=blockNum;
+        index=index+1;
     endwhile;
+
+    alias free_page R0;
+    // first Code page
+    multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+    R1=GET_CODE_PAGE;
+    R2=[DISK_MAP_TABLE + currentPID*10 + 4];
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+
+    [pageTableBase + 8]=free_page;
+    [pageTableBase + 9]="0100";
 
     // Stack Pages
     multipush(R1,R2,R3,R4,R5,R6,R7,R8);

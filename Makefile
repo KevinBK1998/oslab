@@ -5,12 +5,14 @@ XFS_ARGS = run ~/oslab/loadToVM.xfs
 XSM = cd ~/myexpos/xsm && ./xsm
 
 clean:
-	-rm -f mem spl/*.xsm expl/*.xsm
+	rm -f mem library.xsm spl/*.xsm expl/*.xsm
 build:
 	@echo compile spl files
 	${MAKE} -C spl
 	@echo compile expl files
 	${MAKE} -C expl
+	@echo translate labels in library
+	python3 label_translator.py
 	@echo copy to temp
 	${XFS} ${XFS_ARGS}
 	@echo copy to disk

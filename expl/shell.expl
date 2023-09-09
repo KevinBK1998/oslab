@@ -5,12 +5,13 @@ decl
     str filename,default;
 enddecl
 begin
-    default = "odd.xsm";
+    default = "link.xsm";
     write("FileName:");
     read(filename);
     if (filename=="") then
         filename=default;
     endif;
+
     code = exposcall ( "Exec" , filename);
     write("exec failed");
     write(code);

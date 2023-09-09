@@ -3,6 +3,8 @@
 // Load InodeUser table
 loadi(59,3);
 loadi(60,4);
+// Load DiskFree list
+loadi(61,2);
 
 // Load Exception Handler
 loadi(2,15);
@@ -115,13 +117,23 @@ initPROCESS_TABLE=PROCESS_TABLE+16;
 
 // Set Initial Values
 
-// init per process table
+// init per process resource table
 alias resourceIndex R3;
 resourceIndex=0;
 while (resourceIndex < 8) do
     [80*512+RESOURCE_TABLE_OFFSET+resourceIndex*2]=-1;
     resourceIndex=resourceIndex+1;
 endwhile;
+
+// init per process Disk Map Table entries
+alias index R3;
+index = 0;
+while (index<10) do
+    [DISK_MAP_TABLE + 10 + index]=-1;
+    index=index+1;
+endwhile;
+[DISK_MAP_TABLE + 14]=7;
+[DISK_MAP_TABLE + 15]=8;
 
 [MEMORY_FREE_LIST+76]=1;
 [MEMORY_FREE_LIST+77]=1;
