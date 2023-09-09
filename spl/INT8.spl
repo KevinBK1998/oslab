@@ -1,0 +1,121 @@
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = INT_FORK;
+alias userSP R1;
+userSP = SP;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 -1;
+
+multipush(R1);
+R1=GET_PCB_ENTRY;
+call PROCESS_MANAGER;
+multipop(R1);
+
+alias physicalAddrRetVal R2;
+physicalAddrRetVal = ([PTBR + 2 * (userSP - 1)/ 512] * 512) + ((userSP - 1) % 512);
+if (R0 == -1) then    
+    [physicalAddrRetVal] = -1;
+else
+    alias currentPID R3;
+    alias childPID R4;
+    currentPID=[SYSTEM_STATUS_TABLE+1];
+    childPID=R0;
+    
+    alias free_page R0;
+    // Init Heap pages if absent
+    if ([PAGE_TABLE_BASE+currentPID*20+4]<0) then
+        multipush(R1,R2,R3,R4);
+        R1=GET_FREE_PAGE;
+        call MEMORY_MANAGER;
+        multipop(R1,R2,R3,R4);
+        [PAGE_TABLE_BASE+currentPID*20+4]=free_page;
+        [PAGE_TABLE_BASE+currentPID*20+5]="0110";
+        multipush(R1,R2,R3,R4);
+        R1=GET_FREE_PAGE;
+        call MEMORY_MANAGER;
+        multipop(R1,R2,R3,R4);
+        [PAGE_TABLE_BASE+currentPID*20+6]=free_page;
+        [PAGE_TABLE_BASE+currentPID*20+7]="0110";
+    endif;
+
+    // copy process table entries
+    [PROCESS_TABLE + childPID*16]=0;
+    [PROCESS_TABLE + childPID*16 + 2]=currentPID;
+    [PROCESS_TABLE + childPID*16 + 3]=[PROCESS_TABLE + currentPID*16 + 3];
+    alias i R5;
+    i=5;
+    while (i<8) do
+        [PROCESS_TABLE + childPID*16 + i]=[PROCESS_TABLE + currentPID*16 + i];
+        i=i+1;
+    endwhile;
+    [PROCESS_TABLE + childPID*16 + 9]=0;
+    [PROCESS_TABLE + childPID*16 + 10]=[PROCESS_TABLE + currentPID*16 + 10];
+    multipush(R1,R2,R3,R4);
+    R1=GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4);
+    alias userAreaPageNumber R0;
+    [PROCESS_TABLE + childPID*16 + 11]=userAreaPageNumber;
+    [PROCESS_TABLE + childPID*16 + 12]=0;
+    [PROCESS_TABLE + childPID*16 + 13]=[PROCESS_TABLE + currentPID*16 + 13];
+
+    // copy resource table entries
+    i=0;
+    while (i < 8) do
+        [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+i*2]=[([PROCESS_TABLE + currentPID*16 + 11])*512+RESOURCE_TABLE_OFFSET+i*2];
+        i=i+1;
+    endwhile;
+
+    // copy DiskMap Table entries
+    i = 0;
+    while (i<10) do
+        [DISK_MAP_TABLE + childPID*10 + i]=[DISK_MAP_TABLE + currentPID*10 + i];
+        i=i+1;
+    endwhile;
+
+    // copy page table entries
+    i = 0;
+    while (i<16) do
+        alias pageNum R6;
+        pageNum = [PAGE_TABLE_BASE+currentPID*20+i];
+        [PAGE_TABLE_BASE+childPID*20+i]=pageNum;
+        [MEMORY_FREE_LIST + pageNum] = [MEMORY_FREE_LIST + pageNum] + 1;
+        i=i+1;
+    endwhile;
+    alias free_page R0;
+    multipush(R1,R2,R3,R4);
+    R1=GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4);
+    [PAGE_TABLE_BASE+childPID*20+16]=free_page;
+    [PAGE_TABLE_BASE+childPID*20+17]="0110";
+    multipush(R1,R2,R3,R4);
+    R1=GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4);
+    [PAGE_TABLE_BASE+childPID*20+18]=free_page;
+    [PAGE_TABLE_BASE+childPID*20+19]="0110";
+
+    i = [PROCESS_TABLE + childPID*16 + 13];
+    while(i>=4096)do
+        alias currentStackAddress R6;
+        alias childStackAddress R7;
+        currentStackAddress = ([PAGE_TABLE_BASE + currentPID*20 + 2 * (i/ 512)] * 512) + (i % 512);
+        childStackAddress = ([PAGE_TABLE_BASE + childPID*20 + 2 * (i/ 512)] * 512) + (i % 512);
+        [childStackAddress]=[currentStackAddress];
+        i=i-1;
+    endwhile;
+
+    alias childKernelSP R5;
+    // copy BP to top of stack
+    childKernelSP=[PROCESS_TABLE + childPID*16 + 11]*512;
+    [childKernelSP] = BP;
+
+    [PROCESS_TABLE + childPID*16 + 4] = CREATED;
+    alias childRetVal R5;
+    childRetVal = ([PAGE_TABLE_BASE + childPID*20 + 2 * (userSP - 1)/ 512] * 512) + ((userSP - 1) % 512);
+    [childRetVal] = 0;
+    [physicalAddrRetVal] = childPID;
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 0;
+ireturn;

@@ -34,6 +34,10 @@ PTLR = [new_process_table + 15];
 [SYSTEM_STATUS_TABLE + 1] = newPID;
 
 if([new_process_table + 4] == CREATED) then
+    alias kernelSP R4;
+    // copy top of stack to BP
+    kernelSP=[PROCESS_TABLE + newPID*16 + 11]*512;
+    BP = [kernelSP];
 	[new_process_table + 4] = RUNNING;
 	[new_process_table + 9] = 0;
 	SP = [new_process_table + 13];

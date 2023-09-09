@@ -1,5 +1,5 @@
 load --os spl/osStartup.xsm
-load --init expl/shell.xsm
+load --init expl/flink.xsm
 load --idle expl/idle.xsm
 load --library library.xsm
 load --exhandler spl/exception_handler.xsm
@@ -8,6 +8,7 @@ load --int=console spl/console_interrupt.xsm
 load --int=disk spl/disk_interrupt.xsm
 load --int=6 spl/INT6.xsm
 load --int=7 spl/INT7.xsm
+load --int=8 spl/INT8.xsm
 load --int=9 spl/INT9.xsm
 load --int=10 spl/INT10.xsm
 load --module 0 spl/resource_manager.xsm
@@ -16,6 +17,4 @@ load --module 2 spl/memory_manager.xsm
 load --module 4 spl/device_manager.xsm
 load --module 5 spl/scheduler_module.xsm
 load --module 7 spl/boot_module.xsm
-rm link.xsm
-load --exec expl/link.xsm
 exit
