@@ -1,20 +1,37 @@
+decl
+    int execute(str command);
+enddecl
+int execute(str command){
+decl
+    int code;
+enddecl
+begin
+    code = exposcall ( "Exec" , command);
+    write("Bad Command");
+    return -1;
+end
+}
 int main()
 {
 decl
     int code;
-    str filename,default;
+    str command;
 enddecl
 begin
-    default = "link.xsm";
-    write("FileName:");
-    read(filename);
-    if (filename=="") then
-        filename=default;
-    endif;
+    while (1==1) do
+        write("$:");
+        read(command);
+        if (command=="shutdown") then
+            code = exposcall ( "Shutdown");
+        endif;
 
-    code = exposcall ( "Exec" , filename);
-    write("exec failed");
-    write(code);
+        code = exposcall("Fork");
+        if (code == 0) then
+            code = execute(command);
+        else
+            code = exposcall("Wait", code);
+        endif;
+    endwhile;
     return 0;
 end
 }
