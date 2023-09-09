@@ -1,5 +1,5 @@
 load --os spl/osStartup.xsm
-load --init expl/shell.xsm
+load --init expl/numbers100.xsm
 load --idle expl/idle.xsm
 load --library library.xsm
 load --exhandler spl/exception_handler.xsm
@@ -17,6 +17,8 @@ load --module 2 spl/memory_manager.xsm
 load --module 4 spl/device_manager.xsm
 load --module 5 spl/scheduler_module.xsm
 load --module 7 spl/boot_module.xsm
-rm link.xsm
-load --exec expl/link.xsm
+rm odd100.xsm
+load --exec expl/odd100.xsm
+rm even100.xsm
+load --exec expl/even100.xsm
 exit

@@ -1,0 +1,19 @@
+int main()
+{
+decl
+    int code,pid;
+enddecl
+begin
+    pid = exposcall("Fork");
+    if (pid == 0) then
+        code = exposcall ( "Exec" , "odd100.xsm");
+        write("exec failed");
+        write(code);
+    else
+        code = exposcall ( "Exec" , "even100.xsm");
+        write("exec failed");
+        write(code);
+    endif;
+    return 0;
+end
+}
