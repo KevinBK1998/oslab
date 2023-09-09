@@ -33,6 +33,9 @@ loadi(21,34);
 // Load interrupt 10
 loadi(22,35);
 loadi(23,36);
+// Load interrupt 15
+loadi(32,45);
+loadi(33,46);
 // Load module 0
 loadi(40,53);
 loadi(41,54);
