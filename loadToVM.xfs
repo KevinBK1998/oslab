@@ -8,6 +8,7 @@ load --int=console spl/console_interrupt.xsm
 load --int=disk spl/disk_interrupt.xsm
 load --int=6 spl/INT6.xsm
 load --int=7 spl/INT7.xsm
+load --int=8 spl/INT8.xsm
 load --int=9 spl/INT9.xsm
 load --int=10 spl/INT10.xsm
 load --module 0 spl/resource_manager.xsm
