@@ -34,20 +34,23 @@ if (EC!=0 || userSP == 5119) then
         endif;
     endif;
 
+    // required for debugging exception in user programs
+    breakpoint;
+
     print "EXIT PROCESS:";
     print currentPID;
-    
     multipush(R1,R2);
     R2=currentPID;
     R1=EXIT_PROCESS;
     call PROCESS_MANAGER;
     multipop(R1,R2);
-
     call SCHEDULER;
 else
     // print " ";
     // print "Page Fault:";
     // print EPN;
+    // print "ADDRESS:";
+    // print EIP;
     // print " ";
     alias free_page R0;
     alias pageTableBase R3;

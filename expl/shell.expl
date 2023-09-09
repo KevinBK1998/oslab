@@ -11,7 +11,7 @@ begin
     if (filename=="") then
         filename=default;
     endif;
-    breakpoint;
+
     code = exposcall ( "Exec" , filename);
     write("exec failed");
     write(code);

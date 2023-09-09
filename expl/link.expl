@@ -26,29 +26,32 @@ begin
     write("Enter List:");
     q=head;
     while (length!=0)  do
-      read(x);
-      p=alloc();
-      p.data=x;
-      p.next=null;
+        read(x);
+        p=alloc();
+        if (p < 0) then
+            write("OOM");
+            break;
+        endif;
+        p.data=x;
+        p.next=null;
 
-      if (head==null) then
-      head=p;
-      q=p;
-      else
-      q.next=p;
-      q=q.next;
-      endif;
-      
-      length=length-1;
+        if (head==null) then
+            head=p;
+            q=p;
+        else
+            q.next=p;
+            q=q.next;
+        endif;
+        length=length-1;
     endwhile;
 
     write("List:");
     p=head;
     while(p!=null)  do
-      write(p.data);
-      p=p.next;
+        write(p.data);
+        p=p.next;
     endwhile;
 
-    return 1;
+    return 0;
 end
 }
