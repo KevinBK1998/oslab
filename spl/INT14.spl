@@ -1,0 +1,26 @@
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = INT_SEMGET;
+alias userSP R0;
+userSP = SP;
+alias currentPID R1;
+currentPID = [SYSTEM_STATUS_TABLE + 1];
+[PROCESS_TABLE + currentPID*16 + 13] = SP;
+SP = [PROCESS_TABLE + currentPID*16 + 11] * 512 -1;
+
+
+alias systemCall R2;
+alias retAddress R3;
+systemCall = [([PTBR + 2 * (userSP - 5)/ 512] * 512) + ((userSP - 5) % 512)];
+retAddress=([PTBR + 2 * (userSP - 1)/ 512] * 512) + ((userSP - 1) % 512);
+
+if (systemCall == INT_SEMLOCK) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    breakpoint;
+else if (systemCall == INT_SEMUNLOCK) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    breakpoint;
+endif;
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + ( currentPID * 16) + 9] = 0;
+ireturn;

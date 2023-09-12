@@ -10,38 +10,69 @@ if (functionNum == ACQUIRE_DISK) then
     [DISK_STATUS_TABLE]=1;
     [DISK_STATUS_TABLE+4]=givenPID;
     return;
-else
-    if (functionNum == ACQUIRE_TERMINAL) then
-        alias givenPID R2;
-        while ([TERMINAL_STATUS_TABLE]==1) do
-            [PROCESS_TABLE+16*givenPID+4]=WAIT_TERMINAL;
-            multipush(R1,R2);
-            call SCHEDULER;
-            multipop(R1,R2);
-        endwhile;
-        [TERMINAL_STATUS_TABLE]=1;
-        [TERMINAL_STATUS_TABLE+1]=givenPID;
-        return;
-    else
-        if (functionNum == RELEASE_TERMINAL) then
-            alias givenPID R2;
-            if ([TERMINAL_STATUS_TABLE+1]!=givenPID)then
-                R0=-1;
-                return;
-            endif;
-            [TERMINAL_STATUS_TABLE]=0;
-            alias newPID R3;
-            newPID=0;
-            while(newPID < 16) do
-                alias process_table_entry R4;
-                process_table_entry=PROCESS_TABLE + 16 * newPID;
-                if ([process_table_entry + 4] == WAIT_TERMINAL && [process_table_entry + 1]!=-1) then
-                    [process_table_entry + 4] = READY;
-                endif;
-                newPID = newPID + 1;
-            endwhile;
-            R0=0;
-            return;
+else if (functionNum == ACQUIRE_SEMAPHORE) then
+    alias givenPID R2;
+    alias i R3;
+    i=0;
+    while (i<MAX_SEM_COUNT) do
+        if([SEMAPHORE_TABLE + i*4 + 1]==0) then
+            [SEMAPHORE_TABLE + i*4] = -1;
+            [SEMAPHORE_TABLE + i*4 + 1] = 1;
+            break;
         endif;
+        i=i+1;
+    endwhile;
+    R0=i;
+    return;
+else if (functionNum == RELEASE_SEMAPHORE) then
+    alias semIndex R2;
+    alias givenPID R3;
+    if ([SEMAPHORE_TABLE + semIndex*4] == givenPID) then
+        alias pid R4;
+        pid=1;
+        while(pid < 16) do
+            alias process_table_entry R4;
+            process_table_entry=PROCESS_TABLE + 16 * pid;
+            if ([process_table_entry + 4] == WAIT_SEMAPHORE && [process_table_entry + 5] == semIndex && [process_table_entry + 1]!=-1) then
+                [process_table_entry + 4] = READY;
+            endif;
+            pid = pid + 1;
+        endwhile;
     endif;
+    [SEMAPHORE_TABLE + semIndex*4 + 1] = [SEMAPHORE_TABLE + semIndex*4 + 1]-1;
+    return;
+else if (functionNum == ACQUIRE_TERMINAL) then
+    alias givenPID R2;
+    while ([TERMINAL_STATUS_TABLE]==1) do
+        [PROCESS_TABLE+16*givenPID+4]=WAIT_TERMINAL;
+        multipush(R1,R2);
+        call SCHEDULER;
+        multipop(R1,R2);
+    endwhile;
+    [TERMINAL_STATUS_TABLE]=1;
+    [TERMINAL_STATUS_TABLE+1]=givenPID;
+    return;
+else if (functionNum == RELEASE_TERMINAL) then
+    alias givenPID R2;
+    if ([TERMINAL_STATUS_TABLE+1]!=givenPID)then
+        R0=-1;
+        return;
+    endif;
+    [TERMINAL_STATUS_TABLE]=0;
+    alias pid R3;
+    pid=0;
+    while(pid < 16) do
+        alias process_table_entry R4;
+        process_table_entry=PROCESS_TABLE + 16 * pid;
+        if ([process_table_entry + 4] == WAIT_TERMINAL && [process_table_entry + 1]!=-1) then
+            [process_table_entry + 4] = READY;
+        endif;
+        pid = pid + 1;
+    endwhile;
+    R0=0;
+    return;
+endif;
+endif;
+endif;
+endif;
 endif;

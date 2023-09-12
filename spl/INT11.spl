@@ -51,5 +51,5 @@ endif;
 
 breakpoint;
 SP = userSP;
-[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 0;
+[PROCESS_TABLE + ( currentPID * 16) + 9] = 0;
 ireturn;
