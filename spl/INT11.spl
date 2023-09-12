@@ -1,0 +1,55 @@
+alias userSP R0;
+userSP = SP;
+alias currentPID R1;
+currentPID = [SYSTEM_STATUS_TABLE + 1];
+[PROCESS_TABLE + currentPID*16 + 13] = SP;
+SP = [PROCESS_TABLE + currentPID*16 + 11] * 512 -1;
+
+alias systemCall R2;
+alias retAddress R3;
+systemCall = [([PTBR + 2 * (userSP - 5)/ 512] * 512) + ((userSP - 5) % 512)];
+retAddress=([PTBR + 2 * (userSP - 1)/ 512] * 512) + ((userSP - 1) % 512);
+
+if (systemCall == INT_GETPID) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    [retAddress]=[PROCESS_TABLE + currentPID*16 + 1];
+else if (systemCall == INT_GETPPID) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    [retAddress]=[PROCESS_TABLE + currentPID*16 + 2];
+else if (systemCall == INT_WAIT) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    alias pidToWaitFor R4;
+    pidToWaitFor = [([PTBR + 2 * (userSP - 4)/ 512] * 512) + ((userSP - 4) % 512)];
+    if (pidToWaitFor<16 && currentPID!=pidToWaitFor && [PROCESS_TABLE + pidToWaitFor*16 + 4]!=TERMINATED) then
+        [PROCESS_TABLE + currentPID*16 + 4]=WAIT_PROCESS;
+        [PROCESS_TABLE + currentPID*16 + 5]=pidToWaitFor;
+        multipush(R0,R1,R2,R3,R4);
+        call SCHEDULER;
+        multipop(R0,R1,R2,R3,R4);
+        [retAddress]=0;
+    else
+        [retAddress]=-1;
+    endif;
+else if (systemCall == INT_SIGNAL) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    breakpoint;
+    alias pid R4;
+    pid = 1;
+    while(pid < 16) do
+        alias status R5;
+        status = [PROCESS_TABLE + 16 * pid + 4];
+        if(status == WAIT_PROCESS && [PROCESS_TABLE + 16 * pid + 5] == currentPID) then
+            [PROCESS_TABLE + 16 * pid + 4] = READY;
+        endif;
+        pid = pid + 1;
+    endwhile;
+    [retAddress]=0;
+endif;
+endif;
+endif;
+endif;
+
+breakpoint;
+SP = userSP;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 0;
+ireturn;

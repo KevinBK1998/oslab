@@ -71,13 +71,20 @@ else
         i=i+1;
     endwhile;
 
+    //2 LIBRARY PAGES
+    [PAGE_TABLE_BASE+childPID*20+0] = 63;
+    [PAGE_TABLE_BASE+childPID*20+1] = "0100";
+    [PAGE_TABLE_BASE+childPID*20+2] = 64;
+    [PAGE_TABLE_BASE+childPID*20+3] = "0100";
     // copy page table entries
-    i = 0;
+    i = 4;
     while (i<16) do
         alias pageNum R6;
         pageNum = [PAGE_TABLE_BASE+currentPID*20+i];
         [PAGE_TABLE_BASE+childPID*20+i]=pageNum;
-        [MEMORY_FREE_LIST + pageNum] = [MEMORY_FREE_LIST + pageNum] + 1;
+        if (i%2 == 0) then
+            [MEMORY_FREE_LIST + pageNum] = [MEMORY_FREE_LIST + pageNum] + 1;
+        endif;
         i=i+1;
     endwhile;
     alias free_page R0;

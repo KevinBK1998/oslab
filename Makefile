@@ -31,4 +31,4 @@ debug: build
 	@echo
 	@echo Powering Up in Debug Mode
 	@echo
-	${XSM} --debug && cd ${CWD}
+	${XSM} --timer 1000 --debug && cd ${CWD}

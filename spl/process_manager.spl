@@ -42,6 +42,22 @@ else if (functionNum == EXIT_PROCESS) then
     alias process_table R3;
     process_table = PROCESS_TABLE + currentPID * 16;
     [process_table + 4] = TERMINATED;
+
+    if ([process_table + 9]!=INT_EXEC) then
+        alias pid R3;
+        pid = 1;
+        while (pid < 16) do
+            // Wake up waiting processes
+            if ([PROCESS_TABLE + pid*16 + 4]==WAIT_PROCESS && [PROCESS_TABLE + pid*16 + 5]==currentPID) then
+                [PROCESS_TABLE + 16 * pid + 4]=READY;
+            endif;
+            // Abandon child processes
+            if ([PROCESS_TABLE + pid*16 + 2]==currentPID) then
+                [PROCESS_TABLE + 16 * pid + 2]=-1;
+            endif;
+            pid = pid + 1;
+        endwhile;
+    endif;
 else if (functionNum == FREE_PAGE_TABLE) then
     alias currentPID R2;
     alias pageTableBase R3;
