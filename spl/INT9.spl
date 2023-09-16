@@ -1,25 +1,25 @@
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = INT_EXEC;
-alias userSP R0;
+alias userSP R1;
 userSP = SP;
 [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
 SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 -1;
 
-alias physicalPageNum R1;
-alias offset R2;
-alias firstArgPhysicalAddr R3;
+alias physicalPageNum R2;
+alias offset R3;
+alias firstArgPhysicalAddr R4;
 physicalPageNum = [PTBR + 2 * ((userSP - 4)/ 512)];
 offset = (userSP - 4) % 512;
 firstArgPhysicalAddr = (physicalPageNum * 512) + offset;
-alias firstArgument R4;
+alias firstArgument R5;
 firstArgument=[firstArgPhysicalAddr];
 
 // Find Exec file
-alias inode_index R5;
+alias inode_index R6;
 inode_index=0;
 while(inode_index < MAX_FILE_NUM) do
-    alias filename R6;
+    alias filename R7;
 	filename = [INODE_TABLE + inode_index*16 + 1];
-	alias filetype R7;
+	alias filetype R8;
 	filetype = [INODE_TABLE + inode_index*16];
 	if(filename == firstArgument && filetype == EXEC) then
         break;
@@ -29,16 +29,15 @@ endwhile;
 
 if (inode_index < MAX_FILE_NUM)
 then
-    alias currentPID R6;
+    alias currentPID R7;
     currentPID = [SYSTEM_STATUS_TABLE+1];
-    multipush(R0,R1,R2,R3,R4,R5,R6);
+    multipush(R1,R2,R3,R4,R5,R6,R7);
     R1=EXIT_PROCESS;
     R2=currentPID;
     call PROCESS_MANAGER;
-    multipop(R0,R1,R2,R3,R4,R5,R6);
+    multipop(R1,R2,R3,R4,R5,R6,R7);
 
-
-    alias userAreaPageNumber R7;
+    alias userAreaPageNumber R8;
     userAreaPageNumber = [PROCESS_TABLE + currentPID*16 + 11];
     [MEMORY_FREE_LIST+userAreaPageNumber]=[MEMORY_FREE_LIST+userAreaPageNumber]+1;
     [SYSTEM_STATUS_TABLE+2]=[SYSTEM_STATUS_TABLE+2]-1;
@@ -47,14 +46,14 @@ then
     [PROCESS_TABLE + currentPID*16 + 7]=inode_index;
 
     // init per process resource table
-    alias resourceIndex R8;
+    alias resourceIndex R9;
     resourceIndex=0;
     while (resourceIndex < 8) do
         [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+resourceIndex*2]=-1;
         resourceIndex=resourceIndex+1;
     endwhile;
 
-    alias pageTableBase R8;
+    alias pageTableBase R9;
     pageTableBase = PAGE_TABLE_BASE + currentPID * 20;
     // Library Pages
     [pageTableBase+0]=63;
@@ -69,10 +68,10 @@ then
     [pageTableBase+7]="0000";
 
     // init all Disk Map Table entries
-    alias index R9;
+    alias index R10;
     index = 0;
     while (index<10) do
-        alias blockNum R10;
+        alias blockNum R11;
         blockNum=-1;
         if (index >=4 && index <8) then
             blockNum=[INODE_TABLE + inode_index*16 + 4 + index];
@@ -93,17 +92,17 @@ then
     [pageTableBase + 9]="0100";
 
     // Stack Pages
-    multipush(R1,R2,R3,R4,R5,R6,R7,R8);
+    multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
     R1=GET_FREE_PAGE;
     call MEMORY_MANAGER;
-    multipop(R1,R2,R3,R4,R5,R6,R7,R8);
+    multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
     [pageTableBase+16]=free_page;
     [pageTableBase+17]="0110";
 
-    multipush(R1,R2,R3,R4,R5,R6,R7,R8);
+    multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
     R1=GET_FREE_PAGE;
     call MEMORY_MANAGER;
-    multipop(R1,R2,R3,R4,R5,R6,R7,R8);
+    multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
     [pageTableBase+18]=free_page;
     [pageTableBase+19]="0110";
 

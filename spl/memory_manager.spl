@@ -7,11 +7,12 @@ if (functionNum == GET_FREE_PAGE) then
         call SCHEDULER;
         multipop(R1);
     endwhile;
-    [SYSTEM_STATUS_TABLE+3]=[SYSTEM_STATUS_TABLE+3]-1;
     [SYSTEM_STATUS_TABLE+2]=[SYSTEM_STATUS_TABLE+2]-1;
+    [SYSTEM_STATUS_TABLE+3]=[SYSTEM_STATUS_TABLE+3]-1;
+
     alias pageNum R2;
     pageNum = 0;
-    while (pageNum<MAX_MEM_PAGE) do
+    while (pageNum<NUM_MEM_PAGES) do
         if ([MEMORY_FREE_LIST + pageNum] == 0) then
             break;
         endif;

@@ -21,6 +21,8 @@ load --module 2 spl/memory_manager.xsm
 load --module 4 spl/device_manager.xsm
 load --module 5 spl/scheduler_module.xsm
 load --module 7 spl/boot_module.xsm
-rm rwfork.xsm
-load --exec expl/rwfork.xsm
+rm parent.xsm
+rm child.xsm
+load --exec expl/parent.xsm
+load --exec expl/child.xsm
 exit

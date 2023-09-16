@@ -32,18 +32,24 @@ PTLR = 10;
 [PTBR+14] = -1;
 [PTBR+15] = "0000";
 //2 STACK PAGES
-[PTBR+16] = 81;
+R1=GET_FREE_PAGE;
+call MEMORY_MANAGER;
+alias firstStackPage R1;
+firstStackPage=R0;
+[PTBR+16] = firstStackPage;
 [PTBR+17] = "0110";
 [PTBR+18] = -1;
 [PTBR+19] = "0000";
 
-[MEMORY_FREE_LIST+81]=1;
-[MEMORY_FREE_LIST+82]=1;
-
 // Set up process table for pid 0
 [PROCESS_TABLE+1]=0;
 [PROCESS_TABLE+4]=RUNNING;
-[PROCESS_TABLE+11]=82;
+alias userAreaPageNumber R0;
+multipush(R1);
+R1=GET_FREE_PAGE;
+call MEMORY_MANAGER;
+multipop(R1);
+[PROCESS_TABLE+11]=userAreaPageNumber;
 [PROCESS_TABLE+12]=0;
 [PROCESS_TABLE+13]=8*512;
 [PROCESS_TABLE+14]=PAGE_TABLE_BASE;
@@ -53,7 +59,7 @@ PTLR = 10;
 [SYSTEM_STATUS_TABLE + 1]=0;
 
 // Set entry value from the header to top of stack
-[81*512] = [69*512+1];
+[firstStackPage*512] = [69*512+1];
 //Set SP to start of page 9
 SP=8*512;
 ireturn;

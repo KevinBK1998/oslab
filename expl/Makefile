@@ -1,6 +1,6 @@
 EXPL_DIR = ~/oslab/expl
 EXPL = cd ~/myexpos/expl && ./expl
-EXPL_XSM = idle.xsm shell.xsm rwfork.xsm
+EXPL_XSM = idle.xsm shell.xsm parent.xsm child.xsm
 
 compile: ${EXPL_XSM}
 .SUFFIXES: .expl .xsm
