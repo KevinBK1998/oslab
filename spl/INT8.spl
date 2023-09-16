@@ -60,7 +60,16 @@ else
     // copy resource table entries
     i=0;
     while (i < 8) do
-        [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+i*2]=[([PROCESS_TABLE + currentPID*16 + 11])*512+RESOURCE_TABLE_OFFSET+i*2];
+        alias resourceType R6;
+        resourceType=[([PROCESS_TABLE + currentPID*16 + 11])*512+RESOURCE_TABLE_OFFSET+i*2];
+        [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+i*2]=resourceType;
+        alias resourceIndex R7;
+        resourceIndex = [([PROCESS_TABLE + currentPID*16 + 11])*512+RESOURCE_TABLE_OFFSET+i*2+1];
+        [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+i*2+1]= resourceIndex;
+
+        if (resourceType == SEMAPHORE) then
+            [SEMAPHORE_TABLE + resourceIndex*4 + 1] = [SEMAPHORE_TABLE + resourceIndex*4 + 1]+1;
+        endif;
         i=i+1;
     endwhile;
 
