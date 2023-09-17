@@ -32,11 +32,12 @@ else if (functionNum == FREE_USER_AREA_PAGE) then
         resourceIndex = [pageNum*512+RESOURCE_TABLE_OFFSET+i*2+1];
 
         if (resourceType == SEMAPHORE) then
-        breakpoint;
+            R7=resourceIndex;
+            R8=currentPID;
             multipush(R1,R2,R3,R4,R5,R6);
-            R3=currentPID;
-            R2=resourceIndex;
             R1=RELEASE_SEMAPHORE;
+            R2=R7;
+            R3=R8;
             call RESOURCE_MANAGER;
             multipop(R1,R2,R3,R4,R5,R6);
         endif;
