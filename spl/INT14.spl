@@ -1,0 +1,49 @@
+alias userSP R1;
+userSP = SP;
+alias currentPID R2;
+currentPID = [SYSTEM_STATUS_TABLE + 1];
+[PROCESS_TABLE + currentPID*16 + 13] = SP;
+SP = [PROCESS_TABLE + currentPID*16 + 11] * 512 -1;
+
+alias systemCall R3;
+alias semId R4;
+systemCall = [([PTBR + 2 * (userSP - 5)/ 512] * 512) + ((userSP - 5) % 512)];
+semId = [([PTBR + 2 * (userSP - 4)/ 512] * 512) + ((userSP - 4) % 512)];
+
+if (systemCall == INT_SEMLOCK) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    alias userAreaPageNumber R5;
+    userAreaPageNumber = [PROCESS_TABLE + currentPID*16 + 11];
+    alias semTableIndex R6;
+    semTableIndex = [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+semId*2+1];
+    while ([SEMAPHORE_TABLE + semTableIndex*4]!=-1) do
+        [PROCESS_TABLE+16*currentPID+4]=WAIT_SEMAPHORE;
+        [PROCESS_TABLE+16*currentPID+5]=semTableIndex;
+        multipush(R1,R2,R3,R4,R5,R6);
+        call SCHEDULER;
+        multipop(R1,R2,R3,R4,R5,R6);
+    endwhile;
+    [SEMAPHORE_TABLE + semTableIndex*4] = currentPID;
+else if (systemCall == INT_SEMUNLOCK) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    alias userAreaPageNumber R5;
+    alias semTableIndex R6;
+    userAreaPageNumber = [PROCESS_TABLE + currentPID*16 + 11];
+    semTableIndex = [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+semId*2+1];
+    [SEMAPHORE_TABLE + semTableIndex*4]=-1;
+    alias pid R7;
+    pid=1;
+    while(pid < 16) do
+        alias process_table_entry R8;
+        process_table_entry=PROCESS_TABLE + 16 * pid;
+        if ([process_table_entry + 4] == WAIT_SEMAPHORE && [process_table_entry + 5] == semTableIndex && [process_table_entry + 1]!=-1) then
+            [process_table_entry + 4] = READY;
+        endif;
+        pid = pid + 1;
+    endwhile;
+endif;
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + ( currentPID * 16) + 9] = 0;
+ireturn;

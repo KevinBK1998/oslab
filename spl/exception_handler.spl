@@ -56,13 +56,20 @@ else
     alias pageTableBase R3;
     pageTableBase = PAGE_TABLE_BASE + currentPID * 20;
     if(EPN<4) then
-        // Heap Page
+        // 2 Heap Pages
         multipush(R1,R2,R3);
         R1=GET_FREE_PAGE;
         call MEMORY_MANAGER;
         multipop(R1,R2,R3);
-        [pageTableBase+EPN*2]=free_page;
-        [pageTableBase+EPN*2+1]="1110";
+        [pageTableBase+4]=free_page;
+        [pageTableBase+5]="1110";
+
+        multipush(R1,R2,R3);
+        R1=GET_FREE_PAGE;
+        call MEMORY_MANAGER;
+        multipop(R1,R2,R3);
+        [pageTableBase+6]=free_page;
+        [pageTableBase+7]="1110";
     else
         // Code Page
         multipush(R1,R2,R3);

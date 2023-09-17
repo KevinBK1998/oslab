@@ -1,0 +1,21 @@
+int main()
+{
+decl
+    int x;
+enddecl
+begin
+    x = exposcall("Fork");
+    x = exposcall("Fork");
+    x = exposcall("Fork");
+    
+    if(x==-1) then
+        write("Fork Error");
+    else
+        x = exposcall("Getpid");
+        write(x);
+    endif;
+
+    x = exposcall("Exec", "child.xsm");
+    return 0;
+end
+}

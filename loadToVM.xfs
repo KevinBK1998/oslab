@@ -12,6 +12,8 @@ load --int=8 spl/INT8.xsm
 load --int=9 spl/INT9.xsm
 load --int=10 spl/INT10.xsm
 load --int=11 spl/INT11.xsm
+load --int=13 spl/INT13.xsm
+load --int=14 spl/INT14.xsm
 load --int=15 spl/INT15.xsm
 load --module 0 spl/resource_manager.xsm
 load --module 1 spl/process_manager.xsm
@@ -19,8 +21,8 @@ load --module 2 spl/memory_manager.xsm
 load --module 4 spl/device_manager.xsm
 load --module 5 spl/scheduler_module.xsm
 load --module 7 spl/boot_module.xsm
-rm pid.xsm
-rm load.xsm
-load --exec expl/pid.xsm
-load --exec expl/load.xsm
+rm merge1.xsm
+load --exec expl/merge1.xsm
+rm merge2.xsm
+load --exec expl/merge2.xsm
 exit

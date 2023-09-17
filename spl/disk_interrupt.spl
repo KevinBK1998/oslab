@@ -5,9 +5,10 @@ backup;
 
 [DISK_STATUS_TABLE]=0;
 
-alias pid R0;
+alias pid R1;
+pid=1;
 while (pid<16) do
-    alias process_table_entry R1;
+    alias process_table_entry R2;
     process_table_entry = PROCESS_TABLE + pid * 16;
     if ([process_table_entry + 4] ==WAIT_DISK) then
         [process_table_entry + 4] = READY;

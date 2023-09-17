@@ -36,6 +36,12 @@ loadi(23,36);
 // Load interrupt 11
 loadi(24,37);
 loadi(25,38);
+// Load interrupt 13
+loadi(28,41);
+loadi(29,42);
+// Load interrupt 14
+loadi(30,43);
+loadi(31,44);
 // Load interrupt 15
 loadi(32,45);
 loadi(33,46);
@@ -72,15 +78,30 @@ while(pid < 16) do
     pid = pid + 1;
 endwhile;
 
+// set initial memory free list
 alias pageNum R0;
 pageNum = 0;
 while(pageNum < 76) do
     [MEMORY_FREE_LIST + pageNum] = 1;
     pageNum = pageNum + 1;
 endwhile;
-while(pageNum < MAX_MEM_PAGE) do
+
+while(pageNum < NUM_MEM_PAGES) do
     [MEMORY_FREE_LIST + pageNum] = 0;
     pageNum = pageNum + 1;
+endwhile;
+
+// Set memory free count in system status
+[SYSTEM_STATUS_TABLE+2]=52;
+[SYSTEM_STATUS_TABLE+3]=0;
+
+// clear semaphore table
+alias i R0;
+i=0;
+while (i<MAX_SEM_COUNT) do
+    [SEMAPHORE_TABLE + i*4 + 1] = 0;
+    [SEMAPHORE_TABLE + i*4] = -1;
+    i=i+1;
 endwhile;
 
 [TERMINAL_STATUS_TABLE]=0;
@@ -93,10 +114,21 @@ initPTBR=PAGE_TABLE_BASE+20;
 [initPTBR+1] = "0100";
 [initPTBR+2] = 64;
 [initPTBR+3] = "0100";
+
 //2 HEAP PAGES
-[initPTBR+4] = 78;
+alias free_page R0;
+multipush(R1);
+R1=GET_FREE_PAGE;
+call MEMORY_MANAGER;
+multipop(R1);
+[initPTBR+4] = free_page;
 [initPTBR+5] = "0110";
-[initPTBR+6] = 79;
+
+multipush(R1);
+R1=GET_FREE_PAGE;
+call MEMORY_MANAGER;
+multipop(R1);
+[initPTBR+6] = free_page;
 [initPTBR+7] = "0110";
 //4 CODE PAGES
 [initPTBR+8] = 65;
@@ -108,17 +140,32 @@ initPTBR=PAGE_TABLE_BASE+20;
 [initPTBR+14] = -1;
 [initPTBR+15] = "0000";
 //2 STACK PAGES
-[initPTBR+16] = 76;
+multipush(R1);
+R1=GET_FREE_PAGE;
+call MEMORY_MANAGER;
+multipop(R1);
+alias firstStackPage R2;
+firstStackPage = free_page;
+[initPTBR+16] = firstStackPage;
 [initPTBR+17] = "0110";
-[initPTBR+18] = 77;
+multipush(R1,R2);
+R1=GET_FREE_PAGE;
+call MEMORY_MANAGER;
+multipop(R1,R2);
+[initPTBR+18] = free_page;
 [initPTBR+19] = "0110";
 
 // Set up process table for init process
-alias initPROCESS_TABLE R2;
+alias initPROCESS_TABLE R3;
 initPROCESS_TABLE=PROCESS_TABLE+16;
 [initPROCESS_TABLE+1]=1;
 [initPROCESS_TABLE+4]=CREATED;
-[initPROCESS_TABLE+11]=80;
+alias userAreaPageNumber R0;
+multipush(R1,R2,R3);
+R1=GET_FREE_PAGE;
+call MEMORY_MANAGER;
+multipop(R1,R2,R3);
+[initPROCESS_TABLE+11]=userAreaPageNumber;
 [initPROCESS_TABLE+12]=0;
 [initPROCESS_TABLE+13]=8*512;
 [initPROCESS_TABLE+14]=initPTBR;
@@ -127,32 +174,25 @@ initPROCESS_TABLE=PROCESS_TABLE+16;
 // Set Initial Values
 
 // init per process resource table
-alias resourceIndex R3;
+alias resourceIndex R4;
 resourceIndex=0;
 while (resourceIndex < 8) do
-    [80*512+RESOURCE_TABLE_OFFSET+resourceIndex*2]=-1;
+    [userAreaPageNumber*512+RESOURCE_TABLE_OFFSET+resourceIndex*2]=-1;
     resourceIndex=resourceIndex+1;
 endwhile;
 
 // init per process Disk Map Table entries
-alias index R3;
+alias index R4;
 index = 0;
 while (index<10) do
     [DISK_MAP_TABLE + 10 + index]=-1;
     index=index+1;
 endwhile;
+
 [DISK_MAP_TABLE + 14]=7;
 [DISK_MAP_TABLE + 15]=8;
 
-[MEMORY_FREE_LIST+76]=1;
-[MEMORY_FREE_LIST+77]=1;
-[MEMORY_FREE_LIST+78]=1;
-[MEMORY_FREE_LIST+79]=1;
-[MEMORY_FREE_LIST+80]=1;
-// Set MEM_FREE_COUNT needs to be calculated
-[SYSTEM_STATUS_TABLE+2]=128-7;
-[SYSTEM_STATUS_TABLE+3]=0;
 // Set entry value from the header to top of stack
-[76*512] = [65*512+1];
+[firstStackPage*512] = [65*512+1];
 
 return;

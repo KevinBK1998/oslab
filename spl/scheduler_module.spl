@@ -1,19 +1,19 @@
-alias currentPID R0;
+alias currentPID R1;
 currentPID = [SYSTEM_STATUS_TABLE+1];
 multipush(BP);
-alias process_table_entry R1;
+alias process_table_entry R2;
 process_table_entry = PROCESS_TABLE + currentPID * 16;
 
 [process_table_entry + 12] = SP % 512;
 [process_table_entry + 14] = PTBR;
 [process_table_entry + 15] = PTLR;
 
-alias newPID R2;
+alias newPID R3;
 newPID = currentPID + 1;
 while(newPID < 16) do
-	alias status R3;
+	alias status R4;
 	status = [PROCESS_TABLE + 16 * newPID + 4];
-	alias pid R4;
+	alias pid R5;
 	pid = [PROCESS_TABLE + 16 * newPID + 1];
 	if((status == CREATED || status == READY) && pid != -1) then
     	break;
@@ -24,7 +24,7 @@ if(newPID == 16) then
 	newPID = 0;
 endif;
 
-alias new_process_table R3;
+alias new_process_table R4;
 new_process_table = PROCESS_TABLE + newPID * 16;
 
 //Set back Kernel SP, PTBR , PTLR
@@ -34,7 +34,7 @@ PTLR = [new_process_table + 15];
 [SYSTEM_STATUS_TABLE + 1] = newPID;
 
 if([new_process_table + 4] == CREATED) then
-    alias kernelSP R4;
+    alias kernelSP R5;
     // copy top of stack to BP
     kernelSP=[PROCESS_TABLE + newPID*16 + 11]*512;
     BP = [kernelSP];
