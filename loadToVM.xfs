@@ -6,6 +6,7 @@ load --exhandler spl/exception_handler.xsm
 load --int=timer spl/timer_interrupt.xsm
 load --int=console spl/console_interrupt.xsm
 load --int=disk spl/disk_interrupt.xsm
+load --int=4 spl/INT4.xsm
 load --int=6 spl/INT6.xsm
 load --int=7 spl/INT7.xsm
 load --int=8 spl/INT8.xsm
@@ -21,8 +22,8 @@ load --module 2 spl/memory_manager.xsm
 load --module 4 spl/device_manager.xsm
 load --module 5 spl/scheduler_module.xsm
 load --module 7 spl/boot_module.xsm
-rm merge1.xsm
-load --exec expl/merge1.xsm
-rm merge2.xsm
-load --exec expl/merge2.xsm
+rm touch.xsm
+load --exec expl/touch.xsm
+rm rm.xsm
+load --exec expl/rm.xsm
 exit

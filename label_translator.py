@@ -5,8 +5,8 @@ for x in f:
     if x == "\n":
         continue
     if ":" in x:
-        labelDict[x.split(":")[0]]=2*line
-    line+=1
+        labelDict[x.split(":")[0]]=line
+    line+=2
 print(labelDict)
 f.close()
 

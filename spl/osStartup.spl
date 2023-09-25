@@ -31,7 +31,7 @@ PTLR = 10;
 [PTBR+13] = "0000";
 [PTBR+14] = -1;
 [PTBR+15] = "0000";
-//2 STACK PAGES
+//1 STACK PAGES
 R1=GET_FREE_PAGE;
 call MEMORY_MANAGER;
 alias firstStackPage R1;
@@ -43,6 +43,7 @@ firstStackPage=R0;
 
 // Set up process table for pid 0
 [PROCESS_TABLE+1]=0;
+[PROCESS_TABLE+3]=ROOT;
 [PROCESS_TABLE+4]=RUNNING;
 alias userAreaPageNumber R0;
 multipush(R1);

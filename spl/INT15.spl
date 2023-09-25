@@ -1,1 +1,44 @@
-halt;
+[PROCESS_TABLE + currentPID*16 + 9]=INT_SHUTDOWN;
+alias userSP R1;
+userSP = SP;
+alias currentPID R2;
+currentPID = [SYSTEM_STATUS_TABLE + 1];
+[PROCESS_TABLE + currentPID*16 + 13] = SP;
+SP = [PROCESS_TABLE + currentPID*16 + 11] * 512 -1;
+
+alias retAddress R3;
+retAddress=([PTBR + 2 * (userSP - 1)/ 512] * 512) + ((userSP - 1) % 512);
+if ([PROCESS_TABLE + currentPID*16 + 3]==ROOT && currentPID==1) then
+    // Store Inode Table
+    multipush(R1, R2, R3);
+    R1=DISK_STORE;
+    R2=currentPID;
+    R3=59;
+    R4=3;
+    multipop(R1, R2, R3);
+    multipush(R1, R2, R3);
+    R1=DISK_STORE;
+    R2=currentPID;
+    R3=60;
+    R4=4;
+    multipop(R1, R2, R3);
+    // Store Disk Free List
+    multipush(R1, R2, R3);
+    R1=DISK_STORE;
+    R2=currentPID;
+    R3=61;
+    R4=2;
+    multipop(R1, R2, R3);
+    // Store Root File
+    multipush(R1, R2, R3);
+    R1=DISK_STORE;
+    R2=currentPID;
+    R3=62;
+    R4=5;
+    multipop(R1, R2, R3);
+    halt;
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + ( currentPID * 16) + 9] = 0;
+ireturn;

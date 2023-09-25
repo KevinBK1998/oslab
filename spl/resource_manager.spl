@@ -9,7 +9,39 @@ if (functionNum == ACQUIRE_DISK) then
     endwhile;
     [DISK_STATUS_TABLE]=1;
     [DISK_STATUS_TABLE+4]=givenPID;
-    return;
+else if (functionNum == ACQUIRE_INODE) then
+    alias inodeIndex R2;
+    alias givenPID R3;
+    while ([FILE_STATUS_TABLE+inodeIndex*4]!=-1) do
+        [PROCESS_TABLE+16*givenPID+4]=WAIT_FILE;
+        [PROCESS_TABLE+16*givenPID+5]=inodeIndex;
+        multipush(R1,R2,R3);
+        call SCHEDULER;
+        multipop(R1,R2,R3);
+    endwhile;
+    if ([INODE_TABLE + inodeIndex*16 + 1] !=-1) then
+        [FILE_STATUS_TABLE+inodeIndex*4]=givenPID;
+        R0=0;
+    else
+        R0=-1;
+    endif;
+else if (functionNum == RELEASE_INODE) then
+    alias inodeIndex R2;
+    alias givenPID R3;
+    if ([FILE_STATUS_TABLE + inodeIndex*4] == givenPID) then
+        [FILE_STATUS_TABLE + inodeIndex*4]=-1;
+        alias pid R4;
+        pid=1;
+        while(pid < 16) do
+            alias process_table_entry R4;
+            process_table_entry=PROCESS_TABLE + 16 * pid;
+            if ([process_table_entry + 4] == WAIT_FILE && [process_table_entry + 5] == inodeIndex && [process_table_entry + 1]!=-1) then
+                [process_table_entry + 4] = READY;
+            endif;
+            pid = pid + 1;
+        endwhile;
+    endif;
+    [FILE_STATUS_TABLE + inodeIndex*4 + 1] = [FILE_STATUS_TABLE + inodeIndex*4 + 1]-1;
 else if (functionNum == ACQUIRE_SEMAPHORE) then
     alias givenPID R2;
     alias i R3;
@@ -23,11 +55,11 @@ else if (functionNum == ACQUIRE_SEMAPHORE) then
         i=i+1;
     endwhile;
     R0=i;
-    return;
 else if (functionNum == RELEASE_SEMAPHORE) then
     alias semIndex R2;
     alias givenPID R3;
     if ([SEMAPHORE_TABLE + semIndex*4] == givenPID) then
+        [SEMAPHORE_TABLE + semIndex*4] = -1;
         alias pid R4;
         pid=1;
         while(pid < 16) do
@@ -40,7 +72,6 @@ else if (functionNum == RELEASE_SEMAPHORE) then
         endwhile;
     endif;
     [SEMAPHORE_TABLE + semIndex*4 + 1] = [SEMAPHORE_TABLE + semIndex*4 + 1]-1;
-    return;
 else if (functionNum == ACQUIRE_TERMINAL) then
     alias givenPID R2;
     while ([TERMINAL_STATUS_TABLE]==1) do
@@ -51,7 +82,6 @@ else if (functionNum == ACQUIRE_TERMINAL) then
     endwhile;
     [TERMINAL_STATUS_TABLE]=1;
     [TERMINAL_STATUS_TABLE+1]=givenPID;
-    return;
 else if (functionNum == RELEASE_TERMINAL) then
     alias givenPID R2;
     if ([TERMINAL_STATUS_TABLE+1]!=givenPID)then
@@ -70,9 +100,11 @@ else if (functionNum == RELEASE_TERMINAL) then
         pid = pid + 1;
     endwhile;
     R0=0;
-    return;
 endif;
 endif;
 endif;
 endif;
 endif;
+endif;
+endif;
+return;

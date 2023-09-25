@@ -1,0 +1,17 @@
+int main()
+{
+decl
+    int code, perm;
+    str fileName;
+enddecl
+begin
+    read(fileName);
+    read(perm);
+    code = exposcall ( "Create" , fileName, perm);
+    if (code != 0) then
+        write("create failed");
+        write(code);
+    endif;
+    return 0;
+end
+}
