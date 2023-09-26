@@ -18,6 +18,8 @@ build:
 	${MAKE} -C expl
 	@echo translate labels in library
 	python3 label_translator.py
+	@echo copy disk to temp
+	cp ${DISK_DIR}/disk.xfs ${CWD}
 	@echo copy to temp
 	${XFS} ${XFS_ARGS}
 	@echo copy to disk

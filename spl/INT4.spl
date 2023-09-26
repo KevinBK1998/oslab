@@ -16,32 +16,45 @@ if (systemCall == INT_CREATE) then
     fileName = [([PTBR + 2 * (userSP - 4)/ 512] * 512) + ((userSP - 4) % 512)];
     alias perm R5;
     perm = [([PTBR + 2 * (userSP - 3)/ 512] * 512) + ((userSP - 3) % 512)];
+    // Check if file is present
     alias inode_index R6;
     inode_index=0;
     while(inode_index < MAX_FILE_NUM) do
-        if([INODE_TABLE + inode_index*16 + 1] == -1) then
+        if([INODE_TABLE + inode_index*16 + 1] == fileName) then
             break;
         endif;
         inode_index = inode_index + 1;
     endwhile;
     if (inode_index < MAX_FILE_NUM) then
-        [INODE_TABLE + inode_index*16]=DATA;
-        [INODE_TABLE + inode_index*16+1]=fileName;
-        [INODE_TABLE + inode_index*16+2]=0;
-        [INODE_TABLE + inode_index*16+3]=[PROCESS_TABLE + currentPID*16 + 3];
-        [INODE_TABLE + inode_index*16+4]=perm;
-        [INODE_TABLE + inode_index*16+8]=-1;
-        [INODE_TABLE + inode_index*16+9]=-1;
-        [INODE_TABLE +inode_index*16+10]=-1;
-        [INODE_TABLE +inode_index*16+11]=-1;
-        [ROOT_FILE + inode_index*8]=fileName;
-        [ROOT_FILE + inode_index*8+1]=0;
-        [ROOT_FILE + inode_index*8+2]=DATA;
-        [ROOT_FILE + inode_index*8+3]=[PROCESS_TABLE + currentPID*16 + 3];
-        [ROOT_FILE + inode_index*8+4]=perm;
         [retAddress]=0;
     else
-        [retAddress]=-1;
+        // Get a free inode entry
+        inode_index=0;
+        while(inode_index < MAX_FILE_NUM) do
+            if([INODE_TABLE + inode_index*16 + 1] == -1) then
+                break;
+            endif;
+            inode_index = inode_index + 1;
+        endwhile;
+        if (inode_index < MAX_FILE_NUM) then
+            [INODE_TABLE + inode_index*16]=DATA;
+            [INODE_TABLE + inode_index*16+1]=fileName;
+            [INODE_TABLE + inode_index*16+2]=0;
+            [INODE_TABLE + inode_index*16+3]=[PROCESS_TABLE + currentPID*16 + 3];
+            [INODE_TABLE + inode_index*16+4]=perm;
+            [INODE_TABLE + inode_index*16+8]=-1;
+            [INODE_TABLE + inode_index*16+9]=-1;
+            [INODE_TABLE +inode_index*16+10]=-1;
+            [INODE_TABLE +inode_index*16+11]=-1;
+            [ROOT_FILE + inode_index*8]=fileName;
+            [ROOT_FILE + inode_index*8+1]=0;
+            [ROOT_FILE + inode_index*8+2]=DATA;
+            [ROOT_FILE + inode_index*8+3]=[PROCESS_TABLE + currentPID*16 + 3];
+            [ROOT_FILE + inode_index*8+4]=perm;
+            [retAddress]=0;
+        else
+            [retAddress]=-1;
+        endif;
     endif;
 else if (systemCall == INT_DELETE) then
     [PROCESS_TABLE + currentPID*16 + 9]=systemCall;

@@ -124,6 +124,7 @@ while (i<16) do
 endwhile;
 
 [TERMINAL_STATUS_TABLE]=0;
+[DISK_STATUS_TABLE]=0;
 
 // Set up page table for init process
 alias initPTBR R1;
