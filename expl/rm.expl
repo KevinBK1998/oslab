@@ -1,0 +1,16 @@
+int main()
+{
+decl
+    int code;
+    str fileName;
+enddecl
+begin
+    read(fileName);
+    code = exposcall ( "Delete" , fileName);
+    if (code != 0) then
+        write("Delete failed");
+        write(code);
+    endif;
+    return 0;
+end
+}

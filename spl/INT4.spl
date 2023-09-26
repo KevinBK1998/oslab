@@ -1,0 +1,147 @@
+alias userSP R1;
+userSP = SP;
+alias currentPID R2;
+currentPID = [SYSTEM_STATUS_TABLE + 1];
+[PROCESS_TABLE + currentPID*16 + 13] = SP;
+SP = [PROCESS_TABLE + currentPID*16 + 11] * 512 -1;
+
+alias systemCall R3;
+alias retAddress R4;
+systemCall = [([PTBR + 2 * (userSP - 5)/ 512] * 512) + ((userSP - 5) % 512)];
+retAddress=([PTBR + 2 * (userSP - 1)/ 512] * 512) + ((userSP - 1) % 512);
+
+if (systemCall == INT_CREATE) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    alias fileName R3;
+    fileName = [([PTBR + 2 * (userSP - 4)/ 512] * 512) + ((userSP - 4) % 512)];
+    alias perm R5;
+    perm = [([PTBR + 2 * (userSP - 3)/ 512] * 512) + ((userSP - 3) % 512)];
+    // Check if file is present
+    alias inode_index R6;
+    inode_index=0;
+    while(inode_index < MAX_FILE_NUM) do
+        if([INODE_TABLE + inode_index*16 + 1] == fileName) then
+            break;
+        endif;
+        inode_index = inode_index + 1;
+    endwhile;
+    if (inode_index < MAX_FILE_NUM) then
+        [retAddress]=0;
+    else
+        // Get a free inode entry
+        inode_index=0;
+        while(inode_index < MAX_FILE_NUM) do
+            if([INODE_TABLE + inode_index*16 + 1] == -1) then
+                break;
+            endif;
+            inode_index = inode_index + 1;
+        endwhile;
+        if (inode_index < MAX_FILE_NUM) then
+            [INODE_TABLE + inode_index*16]=DATA;
+            [INODE_TABLE + inode_index*16+1]=fileName;
+            [INODE_TABLE + inode_index*16+2]=0;
+            [INODE_TABLE + inode_index*16+3]=[PROCESS_TABLE + currentPID*16 + 3];
+            [INODE_TABLE + inode_index*16+4]=perm;
+            [INODE_TABLE + inode_index*16+8]=-1;
+            [INODE_TABLE + inode_index*16+9]=-1;
+            [INODE_TABLE +inode_index*16+10]=-1;
+            [INODE_TABLE +inode_index*16+11]=-1;
+            [ROOT_FILE + inode_index*8]=fileName;
+            [ROOT_FILE + inode_index*8+1]=0;
+            [ROOT_FILE + inode_index*8+2]=DATA;
+            [ROOT_FILE + inode_index*8+3]=[PROCESS_TABLE + currentPID*16 + 3];
+            [ROOT_FILE + inode_index*8+4]=perm;
+            [retAddress]=0;
+        else
+            [retAddress]=-1;
+        endif;
+    endif;
+else if (systemCall == INT_DELETE) then
+    [PROCESS_TABLE + currentPID*16 + 9]=systemCall;
+    alias fileName R3;
+    fileName = [([PTBR + 2 * (userSP - 4)/ 512] * 512) + ((userSP - 4) % 512)];
+    alias inode_index R5;
+    inode_index=0;
+    while(inode_index < MAX_FILE_NUM) do
+        if([INODE_TABLE + inode_index*16 + 1] == fileName) then
+            break;
+        endif;
+        inode_index = inode_index + 1;
+    endwhile;
+
+    if (inode_index < MAX_FILE_NUM) then
+        alias accessError R3;
+        accessError = -1;
+        if ([INODE_TABLE + inode_index*16]==DATA) then
+            if ([INODE_TABLE + inode_index*16+4]==EXCLUSIVE) then
+                alias currentUser R7;
+                currentUser = [PROCESS_TABLE + currentPID*16 + 3];
+                if (currentUser==ROOT||currentUser==[INODE_TABLE + inode_index*16+3]) then
+                    accessError = 0;
+                endif;
+            else
+                accessError = 0;
+            endif;
+        endif;
+
+        if (accessError==0) then
+            R6=currentPID;
+            multipush(R1,R2,R3,R4,R5);
+            R1=ACQUIRE_INODE;
+            R2=inode_index;
+            R3=R6;
+            call RESOURCE_MANAGER;
+            multipop(R1,R2,R3,R4,R5);
+
+            alias retValue R3;
+            retValue = -2;
+            if ([FILE_STATUS_TABLE + inode_index*4 + 1] == -1) then
+                [INODE_TABLE + inode_index*16+1]=-1;
+                [ROOT_FILE + inode_index*8]=-1;
+                alias disk_index R6;
+                alias max_disk_index R7;
+                disk_index = INODE_TABLE + inode_index*16 + 8;
+                max_disk_index = INODE_TABLE + inode_index*16 + 11;
+                while (disk_index<=max_disk_index) do
+                    if ([disk_index]!=-1) then
+                        alias buffer_index R8;
+                        buffer_index = 0;
+                        while (buffer_index<4) do
+                            if ([BUFFER_TABLE + buffer_index*4]==[disk_index]) then
+                                [BUFFER_TABLE + buffer_index*4+1]=0;
+                                break;
+                            endif;
+                            buffer_index=buffer_index+1;
+                        endwhile;
+                        // release block for each valid block in inode
+                        multipush(R1,R2,R3,R4,R5,R6,R7,R8);
+                        R1=RELEASE_BLOCK;
+                        R2=[disk_index];
+                        call MEMORY_MANAGER;
+                        multipop(R1,R2,R3,R4,R5,R6,R7,R8);
+                    endif;
+                    disk_index=disk_index+1;
+                endwhile;
+                retValue = 0;
+            endif;
+
+            R6=currentPID;
+            multipush(R1,R2,R3,R4);
+            R1=RELEASE_INODE;
+            R2=inode_index;
+            R3=R6;
+            call RESOURCE_MANAGER;
+            multipop(R1,R2,R3,R4);
+            [retAddress]=retValue;
+        else
+            [retAddress]=-1;
+        endif;
+    else
+        [retAddress]=0;
+    endif;
+endif;
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + ( currentPID * 16) + 9] = 0;
+ireturn;
